@@ -1,0 +1,41 @@
+html
+  head
+    title
+      Fluwa Server Console
+    style.
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font: 13px Helvetica, Arial;
+      }
+  body
+    form(class="register")
+      input(type="email", name="email", placeholder="Email")
+      br
+      input(type="password", name="password", placeholder="Password")
+      br
+      input(type="text", name="firstname", placeholder="First Name")
+      br
+      input(type="text", name="lastname", placeholder="Last Name")
+      br
+      input(type="submit", value="Register")
+
+    script(src="https://cdn.socket.io/socket.io-1.2.0.js")
+    script(src="http://code.jquery.com/jquery-1.11.1.js")
+    script.
+      var socket = io.connect('localhost:8080');
+
+      $('form.register').submit(function() {
+        socket.emit('customer register', $(this).serializeArray());
+
+        return false;
+      });
+      socket.on('customer register fail', function (err) {
+        console.log('registration failed: ' + err);
+      });
+      socket.on('customer register succeed', function (_id) {
+        console.log('registration succeeded: ' + _id);
+      });
