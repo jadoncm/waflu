@@ -79,7 +79,7 @@ Play.prototype = {
 	    this.graphics.drawEllipse(particle.x, particle.y, this.game.PARTICLE_SIZE, this.game.PARTICLE_SIZE);
 
 	    var sprite;
-	    var maxDist = 32;
+	    var maxDist = 64;
 	    for (var i = 0; i < particle.connections.length; i++) {
 		sprite = particle.connections[i].sprite;
 		if (Math.sqrt(Math.pow(sprite.x - particle.x, 2) + Math.pow(sprite.x - particle.x, 2)) > maxDist) {
