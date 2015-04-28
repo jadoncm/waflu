@@ -231,9 +231,54 @@ html
         startGame();
       });
       socket.on('turn data', function (data) {
-        logit('other player finished turn: ' + data);
+        data.forEach(function (star) {
+          stars.push(game.add.sprite(star.x, star.y, 'star'));
+        });
+        logit('other player finished turn');
       });
       socket.on('game over', function() {
         logit('other player won');
         endGame();
       });
+
+  script(src="http://cdn.jsdelivr.net/phaser/2.3.0/phaser.min.js")
+
+  script.
+    var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
+      preload: preload,
+      create: create,
+      update: update
+    });
+
+    var stars = [];
+
+    function preload() {
+      game.load.image('star', 'assets/star.png', 32, 32); 
+    }
+
+    function create() {
+    }
+
+    function update() {
+      var mouse = game.input.mousePointer;
+      if (mouse.isDown) {
+        var x = mouse.x-16, y = mouse.y-16;
+        stars.push(game.add.sprite(x, y, 'star'));
+      }
+
+      var keys = {
+        x: game.input.keyboard.addKey(Phaser.Keyboard.X)
+      };
+      if (keys.x.isDown && stars.length > 0) {
+        var turndata = [];
+        stars.forEach(function (star) {
+          turndata.push({
+            x: star.x,
+            y: star.y
+          });
+          star.kill();
+        });
+        stars = [];
+        socket.emit('turn data', turndata);
+      }
+    }
