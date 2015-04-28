@@ -87,7 +87,7 @@ module.exports = function(server, socket) {
       socket.emit('leave game fail', err);
       console.log('leave game fail: ' + socket.id + ' b/c ' + err);
     }
-    function succeed() {
+    function succeed(name) {
       socket.emit('leave game succeed');
       socket.broadcast.emit('updated game', name, null);
       console.log('leave game succeed: ' + socket.id);
@@ -95,7 +95,7 @@ module.exports = function(server, socket) {
 
     server.leaveRoom(socket, function (err, name) {
       if (err) fail(err);
-      else succeed();
+      else succeed(name);
     });
   });
   socket.on('all games', function () {

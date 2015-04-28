@@ -74,6 +74,9 @@ html
       });
 
       // Functions
+      function nameOf(socketid) {
+        return global.names[socketid];
+      }
       function updateName() {
         $('#myname').html('my name: ' + global.names[me]);
       }
@@ -103,14 +106,17 @@ html
         updateRooms();
       }
       function updateRoom(name, guest) {
-        logit(guest + ' joined ' + name);
+        if (guest)
+          logit(nameOf(guest) + ' joined ' + name);
+        else
+          logit(nameOf(global.rooms[name].guest) + ' left ' + name);
         global.rooms[name].guest = guest;
         updateRooms();
       }
       function updateRooms() {
         for (var name in global.rooms) {
-          var host = global.rooms[name].host, 
-              guest = global.rooms[name].guest;
+          var host = nameOf(global.rooms[name].host),
+              guest = nameOf(global.rooms[name].guest);
           $('#rooms').html('').append(name + ' | ' + host + ', ' + guest + '<br />');
         }
         $('#myroom').html('myroom: ' + socket.room);
@@ -122,7 +128,9 @@ html
       // IO
       socket.on('all names', function (names) {
         console.log(names);
+        var myname = global.names[me];
         global.names = names;
+        global.names[me] = myname;
         updateName();
       });
       socket.on('set name succeed', function () {
@@ -139,6 +147,7 @@ html
         var oldname = global.names[socketid];
         global.names[socketid] = name;
         logit(oldname + ' changed name to ' + name);
+        updateRooms();
       });
       socket.on('all games', function (rooms) {
         console.log(rooms);

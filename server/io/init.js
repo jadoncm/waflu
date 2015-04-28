@@ -19,7 +19,7 @@ module.exports = function (server) {
     }
 
     server.rooms[name] = {
-      host: socket,
+      host: socket.id,
       guest: null
     };
     socket.room = name;
@@ -33,7 +33,7 @@ module.exports = function (server) {
     if (!(socket.room in server.rooms)) {
       callback('nonexistent game'); return;
     }
-    if (server.rooms[socket.room].host != socket) {
+    if (server.rooms[socket.room].host != socket.id) {
       callback('not your game'); return;
     }
 
@@ -58,7 +58,7 @@ module.exports = function (server) {
       callback('game full'); return;
     }
 
-    room.guest = socket;
+    room.guest = socket.id;
     socket.room = name;
 
     callback(null);
@@ -70,10 +70,10 @@ module.exports = function (server) {
     if (!(socket.room in server.rooms)) {
       callback('nonexistent game'); return;
     }
-    if (server.rooms[socket.room].host == socket) {
+    if (server.rooms[socket.room].host == socket.id) {
       callback('delete room instead'); return;
     }
-    if (server.rooms[socket.room].guest != socket) {
+    if (server.rooms[socket.room].guest != socket.id) {
       callback('not your game'); return;
     }
 
