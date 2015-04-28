@@ -1,16 +1,11 @@
 'use strict';
 
 var Particle = function(game, x, y, id, player, material, myCollisionGroup, otherCollisionGroup) {
-    Phaser.Sprite.call(this, game, x, y, 'circle');
+    Phaser.Sprite.call(this, game, x, y);
 
     this.game.physics.p2.enable(this, false);
     
     this.id = id;
-    if (player === "player1")
-	this.tint = 0xFF0000;
-    else
-	this.tint = 0x00FF00;
-
     this.body.setMaterial(material);
     this.body.setCircle(8);
     this.body.setCollisionGroup(myCollisionGroup);
