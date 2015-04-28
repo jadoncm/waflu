@@ -16,6 +16,7 @@ var Particle = function(game, x, y, id, player, material, myCollisionGroup, othe
     this.body.setCollisionGroup(myCollisionGroup);
     this.body.collides(otherCollisionGroup, this.collideOpponent, this);
     this.body.collides(myCollisionGroup, this.collideOwn, this);
+    this.body.damping = 0.5;
 
     this.connections = [];
 };
