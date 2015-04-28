@@ -1,10 +1,11 @@
 'use strict';
 
-var Particle = function(game, x, y, player, material, myCollisionGroup, otherCollisionGroup) {
+var Particle = function(game, x, y, id, player, material, myCollisionGroup, otherCollisionGroup) {
     Phaser.Sprite.call(this, game, x, y, 'circle');
 
-    this.game.physics.p2.enable(this, false);
-
+    this.game.physics.p2.enable(this, true);
+    
+    this.id = id;
     if (player === "player1")
 	this.tint = 0xFF0000;
     else
@@ -14,7 +15,9 @@ var Particle = function(game, x, y, player, material, myCollisionGroup, otherCol
     this.body.setCircle(8);
     this.body.setCollisionGroup(myCollisionGroup);
     this.body.collides(otherCollisionGroup, this.collideOpponent, this);
-    this.body.collides(myCollisionGroup);
+    this.body.collides(myCollisionGroup, this.collideOwn, this);
+
+    this.connections = [];
 };
 
 Particle.prototype = Object.create(Phaser.Sprite.prototype);
@@ -28,6 +31,15 @@ Particle.prototype.update = function() {
 
 Particle.prototype.collideOpponent = function(body1, body2) {
     console.log("collide");
+}
+
+Particle.prototype.collideOwn = function(body1, body2) {
+    if (body1.sprite.id < body2.sprite.id) {
+	this.connections.push({
+	    sprite: body2.sprite,
+	    spring: this.game.physics.p2.createSpring(body1, body2, 16, 2, 0.3)
+	});
+    }
 }
 
 module.exports = Particle;

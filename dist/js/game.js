@@ -18,11 +18,12 @@ window.onload = function () {
 },{"./states/boot":3,"./states/gameover":4,"./states/menu":5,"./states/play":6,"./states/preload":7}],2:[function(require,module,exports){
 'use strict';
 
-var Particle = function(game, x, y, player, material, myCollisionGroup, otherCollisionGroup) {
+var Particle = function(game, x, y, id, player, material, myCollisionGroup, otherCollisionGroup) {
     Phaser.Sprite.call(this, game, x, y, 'circle');
 
-    this.game.physics.p2.enable(this, false);
-
+    this.game.physics.p2.enable(this, true);
+    
+    this.id = id;
     if (player === "player1")
 	this.tint = 0xFF0000;
     else
@@ -32,7 +33,9 @@ var Particle = function(game, x, y, player, material, myCollisionGroup, otherCol
     this.body.setCircle(8);
     this.body.setCollisionGroup(myCollisionGroup);
     this.body.collides(otherCollisionGroup, this.collideOpponent, this);
-    this.body.collides(myCollisionGroup);
+    this.body.collides(myCollisionGroup, this.collideOwn, this);
+
+    this.connections = [];
 };
 
 Particle.prototype = Object.create(Phaser.Sprite.prototype);
@@ -46,6 +49,15 @@ Particle.prototype.update = function() {
 
 Particle.prototype.collideOpponent = function(body1, body2) {
     console.log("collide");
+}
+
+Particle.prototype.collideOwn = function(body1, body2) {
+    if (body1.sprite.id < body2.sprite.id) {
+	this.connections.push({
+	    sprite: body2.sprite,
+	    spring: this.game.physics.p2.createSpring(body1, body2, 16, 2, 0.3)
+	});
+    }
 }
 
 module.exports = Particle;
@@ -140,7 +152,7 @@ Play.prototype = {
 	this.game.physics.startSystem(Phaser.Physics.P2JS);
 
 	this.game.physics.p2.setImpactEvents(true);
-	this.game.physics.p2.gravity.y = 300;
+	// this.game.physics.p2.gravity.y = 300;
 
 	this.spriteMaterial = this.game.physics.p2.createMaterial('spriteMaterial');
 	this.worldMaterial = this.game.physics.p2.createMaterial('worldMaterial');
@@ -158,10 +170,21 @@ Play.prototype = {
     update: function() {
 	if (this.game.input.mousePointer.isDown) {
 	    if (this.shift.isDown)
-		this.particles.add(new Particle(this.game, this.game.input.mousePointer.position.x, this.game.input.mousePointer.position.y, "player1", this.spriteMaterial, this.player1CG, this.player2CG));
+		this.particles.add(new Particle(this.game, this.game.input.mousePointer.position.x, this.game.input.mousePointer.position.y, this.particles.total + 1, "player1", this.spriteMaterial, this.player1CG, this.player2CG));
 	    else
-		this.particles.add(new Particle(this.game, this.game.input.mousePointer.position.x, this.game.input.mousePointer.position.y, "player2", this.spriteMaterial, this.player2CG, this.player1CG));
+		this.particles.add(new Particle(this.game, this.game.input.mousePointer.position.x, this.game.input.mousePointer.position.y, this.particles.total + 1, "player2", this.spriteMaterial, this.player2CG, this.player1CG));
 	}
+
+	this.particles.forEach(function(particle) {
+	    var sprite;
+	    for (var i = 0; i < particle.connections.length; i++) {
+		sprite = particle.connections[i].sprite;
+		if (Math.sqrt(Math.pow(sprite.x - particle.x, 2) + Math.pow(sprite.x - particle.x, 2)) > 40) {
+		    this.game.physics.p2.removeSpring(particle.connections[i].spring);
+		    particle.connections.splice(i, 1);
+		}
+	    }
+	}, this, true)
     },
 };
 
