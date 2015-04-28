@@ -44,7 +44,8 @@ Play.prototype = {
 	blurX.blur = 20;
 	var blurY = this.game.add.filter('BlurY');
 	blurY.blur = 20;
-	var threshold = this.game.add.filter('Gray');
+	var threshold = this.game.add.filter('Threshold');
+	threshold.threshold = 2;
 
 	this.graphics.filters = [blurX, blurY, threshold];
 
