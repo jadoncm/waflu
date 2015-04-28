@@ -5,6 +5,7 @@ module.exports = function (config) {
       config = require('./config'),
       util = require('./util'),
       MongoClient = require('mongodb').MongoClient,
+      Init = require('./io/init'),
       Process = require('./io/process'),
       Connect = require('./io/connect');
 
@@ -28,6 +29,7 @@ module.exports = function (config) {
     }
 
     setupMongo();
+    Init(this);
   }
 
   // initialization code - shouldn't need custom code
@@ -39,7 +41,7 @@ module.exports = function (config) {
   setup(function () {
     io.on('connection', function (socket) {
       Connect(server, socket); // when a client connects
-      Process(server, socket, stripe); // all comm processing
+      Process(server, socket); // all comm processing
     });
 
     io.listen(config.ioport);

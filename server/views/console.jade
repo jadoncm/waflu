@@ -1,41 +1,73 @@
 html
   head
-    title
-      Fluwa Server Console
+    title Fluwa Server Console
     style.
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        white-space: pre-line;
       }
       body {
         font: 13px Helvetica, Arial;
       }
   body
-    form(class="register")
-      input(type="email", name="email", placeholder="Email")
-      br
-      input(type="password", name="password", placeholder="Password")
-      br
-      input(type="text", name="firstname", placeholder="First Name")
-      br
-      input(type="text", name="lastname", placeholder="Last Name")
-      br
-      input(type="submit", value="Register")
+    #rooms
+
+    br
+    input(id='roomname', placeholder='Room Name')
+    input(type='button', id='createroom', value='Create Room')
+    br
+
+    #log
 
     script(src="https://cdn.socket.io/socket.io-1.2.0.js")
     script(src="http://code.jquery.com/jquery-1.11.1.js")
     script.
       var socket = io.connect('localhost:8080');
 
-      $('form.register').submit(function() {
-        socket.emit('customer register', $(this).serializeArray());
+      // Setup
+      var global = {
+        rooms: {}
+      }
+      socket.emit('all games');
+      
+      // Interface
+      $('#createroom').click(function() {
+        var name = $('#roomname').val();
+        global.pendingroom = name;
+        socket.emit('create game', name);
+      });
 
-        return false;
+      // Functions
+      function createRoom(name, host) {
+        global.rooms[name] = {
+          host: host,
+          guest: null
+        };
+        updateRooms();
+      }
+      function updateRooms() {
+        for (var name in global.rooms) {
+          var host = global.rooms[name].host, 
+              guest = global.rooms[name].guest;
+          $('#rooms').append(name + ' | ' + host + ', ' + guest + '<br />');
+        }
+      }
+      function logit(err) {
+        $('#log').append(err + '<br />');
+      }
+
+      // IO
+      socket.on('all games', function (rooms) {
+        global.rooms = rooms;
       });
-      socket.on('customer register fail', function (err) {
-        console.log('registration failed: ' + err);
+      socket.on('create game succeed', function () {
+        createRoom(global.pendingroom, socket);        
       });
-      socket.on('customer register succeed', function (_id) {
-        console.log('registration succeeded: ' + _id);
+      socket.on('create game fail', function (err) {
+        logit(err);
+      });
+      socket.on('new game', function (name, host) {
+        createRoom(name, host);
       });
