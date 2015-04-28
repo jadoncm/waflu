@@ -13,7 +13,6 @@ Preload.prototype = {
 	this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
 	this.load.setPreloadSprite(this.asset);
 
-	this.load.image('circle', 'assets/circle.png');
 	this.load.script('filterX', 'https://cdn.rawgit.com/photonstorm/phaser/master/filters/BlurX.js');
 	this.load.script('filterY', 'https://cdn.rawgit.com/photonstorm/phaser/master/filters/BlurY.js');
 	this.load.script('threshold', 'assets/threshold.js');

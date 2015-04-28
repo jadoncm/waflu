@@ -20,16 +20,11 @@ window.onload = function () {
 'use strict';
 
 var Particle = function(game, x, y, id, player, material, myCollisionGroup, otherCollisionGroup) {
-    Phaser.Sprite.call(this, game, x, y, 'circle');
+    Phaser.Sprite.call(this, game, x, y);
 
     this.game.physics.p2.enable(this, false);
     
     this.id = id;
-    if (player === "player1")
-	this.tint = 0xFF0000;
-    else
-	this.tint = 0x00FF00;
-
     this.body.setMaterial(material);
     this.body.setCircle(8);
     this.body.setCollisionGroup(myCollisionGroup);
@@ -169,7 +164,7 @@ Play.prototype = {
 	this.particles = this.game.add.group();
 	this.shift = this.game.input.keyboard.addKey(Phaser.Keyboard.SHIFT);
 	
-	this.mouseBody = this.game.add.sprite(100, 100, 'circle');
+	this.mouseBody = this.game.add.sprite(100, 100);
 	this.mouseSpring = null;
 	this.game.physics.p2.enable(this.mouseBody, true);
 	this.mouseBody.body.static = true;
@@ -191,10 +186,9 @@ Play.prototype = {
 	var blurY = this.game.add.filter('BlurY');
 	blurY.blur = 20;
 	var threshold = this.game.add.filter('Threshold');
-	threshold.threshold = 2;
+	threshold.threshold = 1;
 
 	this.graphics.filters = [blurX, blurY, threshold];
-
     },
     click: function (pointer) {
 	var bodies = this.game.physics.p2.hitTest(pointer.position, this.particles.children);
@@ -221,7 +215,7 @@ Play.prototype = {
 	this.graphics.drawRect(0, 0, 800, 800);
 	this.graphics.beginFill(0xFFFFFF, 1);
 	this.particles.forEach(function(particle) {
-	    this.graphics.drawEllipse(particle.x - 8, particle.y - 8, 16, 16);
+	    this.graphics.drawEllipse(particle.x, particle.y, 8, 8);
 
 	    var sprite;
 	    var maxDist = 64;
@@ -350,7 +344,6 @@ Preload.prototype = {
 	this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
 	this.load.setPreloadSprite(this.asset);
 
-	this.load.image('circle', 'assets/circle.png');
 	this.load.script('filterX', 'https://cdn.rawgit.com/photonstorm/phaser/master/filters/BlurX.js');
 	this.load.script('filterY', 'https://cdn.rawgit.com/photonstorm/phaser/master/filters/BlurY.js');
 	this.load.script('threshold', 'assets/threshold.js');

@@ -23,7 +23,7 @@ Play.prototype = {
 	this.particles = this.game.add.group();
 	this.shift = this.game.input.keyboard.addKey(Phaser.Keyboard.SHIFT);
 	
-	this.mouseBody = this.game.add.sprite(100, 100, 'circle');
+	this.mouseBody = this.game.add.sprite(100, 100);
 	this.mouseSpring = null;
 	this.game.physics.p2.enable(this.mouseBody, true);
 	this.mouseBody.body.static = true;
@@ -45,10 +45,9 @@ Play.prototype = {
 	var blurY = this.game.add.filter('BlurY');
 	blurY.blur = 20;
 	var threshold = this.game.add.filter('Threshold');
-	threshold.threshold = 2;
+	threshold.threshold = 1;
 
 	this.graphics.filters = [blurX, blurY, threshold];
-
     },
     click: function (pointer) {
 	var bodies = this.game.physics.p2.hitTest(pointer.position, this.particles.children);
@@ -75,7 +74,7 @@ Play.prototype = {
 	this.graphics.drawRect(0, 0, 800, 800);
 	this.graphics.beginFill(0xFFFFFF, 1);
 	this.particles.forEach(function(particle) {
-	    this.graphics.drawEllipse(particle.x - 8, particle.y - 8, 16, 16);
+	    this.graphics.drawEllipse(particle.x, particle.y, 8, 8);
 
 	    var sprite;
 	    var maxDist = 64;
