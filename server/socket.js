@@ -29,7 +29,6 @@ module.exports = function (config) {
     }
 
     setupMongo();
-    Init(this);
   }
 
   // initialization code - shouldn't need custom code
@@ -37,6 +36,7 @@ module.exports = function (config) {
   var server = this;
   var io = require('socket.io')();
   this.sockets = io.sockets.connected;
+  Init(this);
 
   setup(function () {
     io.on('connection', function (socket) {

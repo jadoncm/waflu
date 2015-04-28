@@ -6,6 +6,39 @@ module.exports = function(server, socket) {
       ObjectID = require('mongodb').ObjectID;
 
 
+  socket.on('all names', function() {
+    var names = {};
+    for (var key in server.sockets) {
+      s = server.sockets[key];
+      names[s.id] = s.name;
+    }
+    socket.emit('all names', names);
+    console.log('all names: ' + socket.id);
+  });
+  socket.on('set name', function (name) {
+    function fail(err) {
+      socket.emit('set name fail', err);
+      console.log('set name fail: ' + socket.id + ' | ' + name);
+    }
+    function succeed() {
+      socket.name = name;
+      socket.emit('set name succeed');
+      socket.broadcast.emit('change name', socket.id, name);
+      console.log('set name succeed: ' + socket.id + ' | ' + name);
+    }
+
+    if (!name) {
+      fail('name invalid'); return;
+    }
+
+    var okay = true;
+    for (var key in server.sockets) {
+      s = server.sockets[key];
+      if (s.name == name) okay = false;
+    }
+    if (okay) succeed();
+    else fail('name taken');
+  });
   socket.on('create game', function (name) {
     function fail(err) {
       socket.emit('create game fail', err);
@@ -14,14 +47,13 @@ module.exports = function(server, socket) {
     }
     function succeed() {
       socket.emit('create game succeed');
+      socket.broadcast.emit('new game', name, socket.id);
       console.log('create game succeed: ' + socket.id + ' | ' + name);
     }
 
     server.createRoom(socket, name, function (err) {
       if (err) fail(err);
-      else {
-        socket.broadcast.emit('new game', name, socket);
-      }
+      else succeed();
     });
   });
   socket.on('delete game', function () {
@@ -31,14 +63,13 @@ module.exports = function(server, socket) {
     }
     function succeed() {
       socket.emit('delete game succeed');
+      socket.broadcast.emit('deleted game', name);
       console.log('delete game succeed: ' + socket.id);
     }
 
     server.deleteRoom(socket, function (err, name) {
       if (err) fail(err);
-      else {
-        socket.broadcast.emit('deleted game', name);
-      }
+      else succeed();
     });
   });
   socket.on('join game', function (name) {
@@ -48,14 +79,13 @@ module.exports = function(server, socket) {
     }
     function succeed() {
       socket.emit('join game succeed');
+      socket.broadcast.emit('updated game', name, socket.id);
       console.log('join game succeed: ' + socket.id);
     }
 
     server.joinRoom(socket, name, function (err) {
       if (err) fail(err);
-      else {
-        socket.broadcast.emit('updated game', name, socket);
-      }
+      else succeed();
     });
   });
   socket.on('leave game', function () {
@@ -65,14 +95,13 @@ module.exports = function(server, socket) {
     }
     function succeed() {
       socket.emit('leave game succeed');
+      socket.broadcast.emit('updated game', name, null);
       console.log('leave game succeed: ' + socket.id);
     }
 
     server.leaveRoom(socket, function (err, name) {
       if (err) fail(err);
-      else {
-        socket.broadcast.emit('updated game', name, null);
-      }
+      else succeed();
     });
   });
   socket.on('all games', function () {
