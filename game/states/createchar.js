@@ -1,7 +1,7 @@
 'use strict';
 function Createchar() {}
 
-Create.prototype = {
+Createchar.prototype = {
   preload: function() {
 
   },

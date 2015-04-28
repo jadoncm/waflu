@@ -1,7 +1,7 @@
 'use strict';
 function Createname() {}
 
-Create.prototype = {
+Createname.prototype = {
   preload: function() {
 
   },
@@ -16,17 +16,19 @@ Create.prototype = {
   startClick: function(){
     console.log("button clicked");
     console.log($('#username').val());
-    var name = $('#username').val();
+    this.game.state.start('play');
+    $('#username-container').hide();
+    /*var name = $('#username').val();
     global.setname = name;
-    socket.emit('set name', name);
+    socket.emit('set name', name); */
   },
   update: function() {
-    socket.on('set name succeed', function(){
+  /*  socket.on('set name succeed', function(){
       this.game.state.start('createchar');
     });
     socket.on('set name fail', function(){
       console.log('name already taken');
-    });
+    }); */
   }
 };
 
