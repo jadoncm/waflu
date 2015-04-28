@@ -79,6 +79,7 @@ html
       }
       function updateName() {
         $('#myname').html('my name: ' + global.names[me]);
+        updateRooms();
       }
       function createRoom(name, host) {
         logit('created room ' + name);
@@ -102,6 +103,7 @@ html
       }
       function deleteRoom(name) {
         logit('deleted room ' + name);
+        if (global.rooms[name].guest == me) socket.room = null;
         delete global.rooms[name];
         updateRooms();
       }
@@ -114,10 +116,11 @@ html
         updateRooms();
       }
       function updateRooms() {
+        $('#rooms').html('');
         for (var name in global.rooms) {
           var host = nameOf(global.rooms[name].host),
               guest = nameOf(global.rooms[name].guest);
-          $('#rooms').html('').append(name + ' | ' + host + ', ' + guest + '<br />');
+          $('#rooms').append(name + ' | ' + host + ', ' + guest + '<br />');
         }
         $('#myroom').html('myroom: ' + socket.room);
       }
@@ -169,6 +172,9 @@ html
       });
       socket.on('delete game fail', function (err) {
         logit(err);
+      });
+      socket.on('deleted game', function (name) {
+        deleteRoom(name);
       });
       socket.on('join game succeed', function() {
         joinRoom(global.joinroom);

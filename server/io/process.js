@@ -55,7 +55,7 @@ module.exports = function(server, socket) {
       socket.emit('delete game fail', err);
       console.log('delete game fail: ' + socket.id + ' b/c ' + err);
     }
-    function succeed() {
+    function succeed(name) {
       socket.emit('delete game succeed');
       socket.broadcast.emit('deleted game', name);
       console.log('delete game succeed: ' + socket.id);
@@ -63,7 +63,7 @@ module.exports = function(server, socket) {
 
     server.deleteRoom(socket, function (err, name) {
       if (err) fail(err);
-      else succeed();
+      else succeed(name);
     });
   });
   socket.on('join game', function (name) {
