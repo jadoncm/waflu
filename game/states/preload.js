@@ -7,7 +7,8 @@ function Preload() {
 
 Preload.prototype = {
     preload: function() {
-	this.asset = this.add.sprite(this.width/2,this.height/2, 'preloader');
+	$('#username-container').hide();
+	this.asset = this.add.sprite(this.width/2, this.height/2, 'preloader');
 	this.asset.anchor.setTo(0.5, 0.5);
 
 	this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
@@ -18,17 +19,20 @@ Preload.prototype = {
 	this.load.script('threshold', 'assets/threshold.js');
 
 	this.load.image('colors', 'assets/colors.png');
+
+	this.load.image('startButton', 'assets/button_blank_gray_01.png');  
     },
     create: function() {
 	this.asset.cropEnabled = false;
     },
     update: function() {
 	if(!!this.ready) {
-	    this.game.state.start('play');
+	    this.game.state.start('menu');
 	}
     },
     onLoadComplete: function() {
 	this.ready = true;
+
     }
 };
 

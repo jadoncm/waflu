@@ -22,7 +22,9 @@ module.exports = function (grunt) {
       scripts: {
         files: [
             'game/**/*.js',
-            '!game/main.js'
+            '!game/main.js',
+            'index.html',
+            'css/*.css'
         ],
         options: {
           spawn: false,
@@ -50,7 +52,7 @@ module.exports = function (grunt) {
     },
     open: {
       server: {
-        path: 'http://localhost:9000'
+        path: 'http:localhost:9000'
       }
     },
     copy: {
