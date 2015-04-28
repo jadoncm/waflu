@@ -189,11 +189,11 @@ Play.prototype = {
 
 	this.graphics = this.game.add.graphics();
 	var blurX = this.game.add.filter('BlurX');
-	blurX.blur = 20;
+	blurX.blur = 40;
 	var blurY = this.game.add.filter('BlurY');
-	blurY.blur = 20;
+	blurY.blur = 40;
 	var threshold = this.game.add.filter('Threshold');
-	threshold.threshold = 1;
+	threshold.threshold = 0.5;
 
 	this.graphics.filters = [blurX, blurY, threshold];
 
@@ -286,7 +286,7 @@ Play.prototype = {
 	    this.graphics.drawEllipse(particle.x, particle.y, this.game.PARTICLE_SIZE, this.game.PARTICLE_SIZE);
 
 	    var sprite;
-	    var maxDist = 64;
+	    var maxDist = 32;
 	    for (var i = 0; i < particle.connections.length; i++) {
 		sprite = particle.connections[i].sprite;
 		if (Math.sqrt(Math.pow(sprite.x - particle.x, 2) + Math.pow(sprite.x - particle.x, 2)) > maxDist) {
