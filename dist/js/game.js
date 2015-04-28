@@ -10,12 +10,13 @@ window.onload = function () {
   game.state.add('gameover', require('./states/gameover'));
   game.state.add('menu', require('./states/menu'));
   game.state.add('play', require('./states/play'));
+  game.state.add('play_alt', require('./states/play_alt'));
   game.state.add('preload', require('./states/preload'));
   
 
   game.state.start('boot');
 };
-},{"./states/boot":3,"./states/gameover":4,"./states/menu":5,"./states/play":6,"./states/preload":7}],2:[function(require,module,exports){
+},{"./states/boot":3,"./states/gameover":4,"./states/menu":5,"./states/play":6,"./states/play_alt":7,"./states/preload":8}],2:[function(require,module,exports){
 'use strict';
 
 var Particle = function(game, x, y, id, player, color, material, myCollisionGroup, otherCollisionGroup) {
@@ -24,7 +25,6 @@ var Particle = function(game, x, y, id, player, color, material, myCollisionGrou
     this.game.physics.p2.enable(this, false);
     
     this.color = color;
-
     this.id = id;
     this.body.setMaterial(material);
     this.body.setCircle(this.game.PARTICLE_SIZE);
@@ -32,6 +32,7 @@ var Particle = function(game, x, y, id, player, color, material, myCollisionGrou
     this.body.collides(otherCollisionGroup, this.collideOpponent, this);
     this.body.collides(myCollisionGroup, this.collideOwn, this);
     this.body.damping = 0.5;
+    this.selected = false;
 
     this.connections = [];
 };
@@ -40,7 +41,6 @@ Particle.prototype = Object.create(Phaser.Sprite.prototype);
 Particle.prototype.constructor = Particle;
 
 Particle.prototype.update = function() {
-  
   // write your prefab's specific update code here
   
 };
@@ -147,12 +147,11 @@ var Particle = require('../prefabs/particle');
 function Play() {}
 Play.prototype = {
     create: function() {
-	this.game.PARTICLE_SIZE = 8;
+	this.game.PARTICLE_SIZE = 16;
 
 	this.game.physics.startSystem(Phaser.Physics.P2JS);
 
 	this.game.physics.p2.setImpactEvents(true);
-	// this.game.physics.p2.gravity.y = 300;
 
 	this.spriteMaterial = this.game.physics.p2.createMaterial('spriteMaterial');
 	this.worldMaterial = this.game.physics.p2.createMaterial('worldMaterial');
@@ -164,13 +163,16 @@ Play.prototype = {
 	this.player2CG = this.game.physics.p2.createCollisionGroup();
 	this.game.physics.p2.updateBoundsCollisionGroup();
 
-	this.color = 0xFFFFFF;
+	this.color = Phaser.Color.createColor(255, 255, 255);
 	this.particles = this.game.add.group();
 	this.shift = this.game.input.keyboard.addKey(Phaser.Keyboard.SHIFT);
 	this.z = this.game.input.keyboard.addKey(Phaser.Keyboard.Z);
+	this.x = this.game.input.keyboard.addKey(Phaser.Keyboard.X);
+	this.c = this.game.input.keyboard.addKey(Phaser.Keyboard.C);
 	
 	this.mouseBody = this.game.add.sprite(100, 100);
 	this.mouseSpring = null;
+	this.dragSprings = [];
 	this.game.physics.p2.enable(this.mouseBody, true);
 	this.mouseBody.body.static = true;
 	this.mouseBody.body.setCircle(10);
@@ -204,6 +206,8 @@ Play.prototype = {
 	this.tooltipSprite = this.game.add.sprite(0, 0, this.tooltip);
 
 	this.game.input.addMoveCallback(this.updateTooltip, this);
+
+	this.selectedParticles = [];
     },
 
     updateTooltip: function(pointer, x, y) {
@@ -227,13 +231,26 @@ Play.prototype = {
 	var bodies = this.game.physics.p2.hitTest(pointer.position, this.particles.children);
 	if (bodies.length) {
 	    this.dragging = true;
-	    this.mouseSpring = this.game.physics.p2.createSpring(this.mouseBody, bodies[0], 0, 5, 1);
+	    this.mouseSpring = this.game.physics.p2.createSpring(this.mouseBody, bodies[0], 16, 5, 1);
 	}
+
+	if (this.selectedParticles.length) {
+		this.dragging = true;
+		for (var i = 0; i < this.selectedParticles.length; i++) {
+			this.dragSprings.push(this.game.physics.p2.createSpring(this.mouseBody, this.selectedParticles[i], 16, 5, 1));
+		}
+	}
+
     },
 
     release: function() {
 	this.dragging = false;
 	this.game.physics.p2.removeSpring(this.mouseSpring);
+
+	for (var i = 0; i < this.dragSprings.length; i++) {
+		this.game.physics.p2.removeSpring(this.dragSprings[i]);
+	}
+	this.dragSprings = [];
     },
 
     update: function() {
@@ -241,9 +258,8 @@ Play.prototype = {
 
 	if (this.z.isDown) {
 	    if (this.game.input.mousePointer.isDown) {
-		var color = this.colorBitmap.getPixelRGB(
+		this.color = this.colorBitmap.getPixelRGB(
 		    Math.floor(mousePos.x), Math.floor(mousePos.y));
-		this.color = Phaser.Color.getColor(color.r, color.g, color.b);
 	    }
 	    this.colorImage.visible = true;
 	} else {
@@ -257,6 +273,124 @@ Play.prototype = {
 		this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, "player1", this.color, this.spriteMaterial, this.player1CG, this.player2CG));
 	    else
 		this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, "player2", this.color, this.spriteMaterial, this.player2CG, this.player1CG));
+	}
+
+	this.graphics.clear();
+	this.graphics.beginFill(0x000000, 1);
+	this.graphics.drawRect(0, 0, 800, 800);
+	this.particles.forEach(function(particle) {
+	    this.graphics.beginFill(
+		Phaser.Color.getColor(particle.color.r, particle.color.g, particle.color.b),
+		1
+	    );
+	    this.graphics.drawEllipse(particle.x, particle.y, this.game.PARTICLE_SIZE, this.game.PARTICLE_SIZE);
+
+	    var sprite;
+	    var maxDist = 64;
+	    for (var i = 0; i < particle.connections.length; i++) {
+		sprite = particle.connections[i].sprite;
+		if (Math.sqrt(Math.pow(sprite.x - particle.x, 2) + Math.pow(sprite.x - particle.x, 2)) > maxDist) {
+		    this.game.physics.p2.removeSpring(particle.connections[i].spring);
+		    particle.connections.splice(i, 1);
+		}
+	    }
+	}, this, true);
+
+	if (this.game.input.mousePointer.isDown) {
+		if (this.x.isDown) {
+			var bodies = this.game.physics.p2.hitTest(this.game.input.mousePointer.position, this.particles.children);
+			if (bodies.length) {
+				if (!bodies[0].selected) {
+					bodies[0].selected = true;
+					this.selectedParticles.push(bodies[0]);
+				}
+			}
+		}
+	}
+
+	if (this.c.isDown) {
+		for (var i = 0; i < this.selectedParticles.length; i++) {
+			this.selectedParticles[i].selected = false;
+		}
+		this.selectedParticles = [];
+	}
+    },
+};
+
+module.exports = Play;
+
+},{"../prefabs/particle":2}],7:[function(require,module,exports){
+'use strict';
+
+var Particle = require('../prefabs/particle');
+
+function Play() {}
+Play.prototype = {
+    create: function() {
+	this.game.PARTICLE_SIZE = 8;
+
+	this.game.physics.startSystem(Phaser.Physics.P2JS);
+
+	this.game.physics.p2.setImpactEvents(true);
+	// this.game.physics.p2.gravity.y = 300;
+
+	this.spriteMaterial = this.game.physics.p2.createMaterial('spriteMaterial');
+	this.worldMaterial = this.game.physics.p2.createMaterial('worldMaterial');
+	this.contactMaterial = this.game.physics.p2.createContactMaterial(this.spriteMaterial, this.worldMaterial, { restitution: 1.0 });
+
+	this.game.physics.p2.setWorldMaterial(this.worldMaterial);
+
+	this.player1CG = this.game.physics.p2.createCollisionGroup();
+	this.player2CG = this.game.physics.p2.createCollisionGroup();
+	this.game.physics.p2.updateBoundsCollisionGroup();
+
+	this.particles = this.game.add.group();
+	this.shift = this.game.input.keyboard.addKey(Phaser.Keyboard.SHIFT);
+	
+	this.mouseBody = this.game.add.sprite(100, 100);
+	this.mouseSpring = null;
+	this.game.physics.p2.enable(this.mouseBody, true);
+	this.mouseBody.body.static = true;
+	this.mouseBody.body.setCircle(10);
+	this.mouseBody.body.data.shapes[0].sensor = true;
+	this.game.input.addMoveCallback(function (pointer, x, y, isDown) {
+	    this.mouseBody.body.x = x;
+	    this.mouseBody.body.y = y;
+	}, this);
+
+	this.game.input.onDown.add(this.click, this);
+	this.game.input.onUp.add(this.release, this);
+
+	this.dragging = false;
+
+	this.graphics = this.game.add.graphics();
+	var blurX = this.game.add.filter('BlurX');
+	blurX.blur = 20;
+	var blurY = this.game.add.filter('BlurY');
+	blurY.blur = 20;
+	var threshold = this.game.add.filter('Threshold');
+	threshold.threshold = 2;
+
+	this.graphics.filters = [blurX, blurY, threshold];
+    },
+    click: function (pointer) {
+	var bodies = this.game.physics.p2.hitTest(pointer.position, this.particles.children);
+	if (bodies.length) {
+	    this.dragging = true;
+	    this.mouseSpring = this.game.physics.p2.createSpring(this.mouseBody, bodies[0], 0, 5, 1);
+	}
+    },
+    release: function () {
+	this.dragging = false;
+	this.game.physics.p2.removeSpring(this.mouseSpring);
+    },
+    update: function() {
+	var bodies = this.game.physics.p2.hitTest(this.game.input.mousePointer.position, this.particles.children);
+	if (this.game.input.mousePointer.isDown && !bodies.length && !this.dragging) {
+	    if (this.shift.isDown)
+		this.particles.add(new Particle(this.game, this.game.input.mousePointer.position.x, this.game.input.mousePointer.position.y, this.particles.total + 1, "player1", this.spriteMaterial, this.player1CG, this.player2CG));
+	    else
+		this.particles.add(new Particle(this.game, this.game.input.mousePointer.position.x, this.game.input.mousePointer.position.y, this.particles.total + 1, "player2", this.spriteMaterial, this.player2CG, this.player1CG));
 	}
 
 	this.graphics.clear();
@@ -281,7 +415,7 @@ Play.prototype = {
 
 module.exports = Play;
 
-},{"../prefabs/particle":2}],7:[function(require,module,exports){
+},{"../prefabs/particle":2}],8:[function(require,module,exports){
 
 'use strict';
 function Preload() {

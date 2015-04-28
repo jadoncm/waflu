@@ -6,7 +6,6 @@ var Particle = function(game, x, y, id, player, color, material, myCollisionGrou
     this.game.physics.p2.enable(this, false);
     
     this.color = color;
-
     this.id = id;
     this.body.setMaterial(material);
     this.body.setCircle(this.game.PARTICLE_SIZE);
@@ -14,6 +13,7 @@ var Particle = function(game, x, y, id, player, color, material, myCollisionGrou
     this.body.collides(otherCollisionGroup, this.collideOpponent, this);
     this.body.collides(myCollisionGroup, this.collideOwn, this);
     this.body.damping = 0.5;
+    this.selected = false;
 
     this.connections = [];
 };
@@ -22,7 +22,6 @@ Particle.prototype = Object.create(Phaser.Sprite.prototype);
 Particle.prototype.constructor = Particle;
 
 Particle.prototype.update = function() {
-  
   // write your prefab's specific update code here
   
 };

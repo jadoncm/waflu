@@ -5,12 +5,11 @@ var Particle = require('../prefabs/particle');
 function Play() {}
 Play.prototype = {
     create: function() {
-	this.game.PARTICLE_SIZE = 8;
+	this.game.PARTICLE_SIZE = 16;
 
 	this.game.physics.startSystem(Phaser.Physics.P2JS);
 
 	this.game.physics.p2.setImpactEvents(true);
-	// this.game.physics.p2.gravity.y = 300;
 
 	this.spriteMaterial = this.game.physics.p2.createMaterial('spriteMaterial');
 	this.worldMaterial = this.game.physics.p2.createMaterial('worldMaterial');
@@ -22,13 +21,16 @@ Play.prototype = {
 	this.player2CG = this.game.physics.p2.createCollisionGroup();
 	this.game.physics.p2.updateBoundsCollisionGroup();
 
-	this.color = 0xFFFFFF;
+	this.color = Phaser.Color.createColor(255, 255, 255);
 	this.particles = this.game.add.group();
 	this.shift = this.game.input.keyboard.addKey(Phaser.Keyboard.SHIFT);
 	this.z = this.game.input.keyboard.addKey(Phaser.Keyboard.Z);
+	this.x = this.game.input.keyboard.addKey(Phaser.Keyboard.X);
+	this.c = this.game.input.keyboard.addKey(Phaser.Keyboard.C);
 	
 	this.mouseBody = this.game.add.sprite(100, 100);
 	this.mouseSpring = null;
+	this.dragSprings = [];
 	this.game.physics.p2.enable(this.mouseBody, true);
 	this.mouseBody.body.static = true;
 	this.mouseBody.body.setCircle(10);
@@ -62,6 +64,8 @@ Play.prototype = {
 	this.tooltipSprite = this.game.add.sprite(0, 0, this.tooltip);
 
 	this.game.input.addMoveCallback(this.updateTooltip, this);
+
+	this.selectedParticles = [];
     },
 
     updateTooltip: function(pointer, x, y) {
@@ -85,13 +89,26 @@ Play.prototype = {
 	var bodies = this.game.physics.p2.hitTest(pointer.position, this.particles.children);
 	if (bodies.length) {
 	    this.dragging = true;
-	    this.mouseSpring = this.game.physics.p2.createSpring(this.mouseBody, bodies[0], 0, 5, 1);
+	    this.mouseSpring = this.game.physics.p2.createSpring(this.mouseBody, bodies[0], 16, 5, 1);
 	}
+
+	if (this.selectedParticles.length) {
+		this.dragging = true;
+		for (var i = 0; i < this.selectedParticles.length; i++) {
+			this.dragSprings.push(this.game.physics.p2.createSpring(this.mouseBody, this.selectedParticles[i], 16, 5, 1));
+		}
+	}
+
     },
 
     release: function() {
 	this.dragging = false;
 	this.game.physics.p2.removeSpring(this.mouseSpring);
+
+	for (var i = 0; i < this.dragSprings.length; i++) {
+		this.game.physics.p2.removeSpring(this.dragSprings[i]);
+	}
+	this.dragSprings = [];
     },
 
     update: function() {
@@ -99,9 +116,8 @@ Play.prototype = {
 
 	if (this.z.isDown) {
 	    if (this.game.input.mousePointer.isDown) {
-		var color = this.colorBitmap.getPixelRGB(
+		this.color = this.colorBitmap.getPixelRGB(
 		    Math.floor(mousePos.x), Math.floor(mousePos.y));
-		this.color = Phaser.Color.getColor(color.r, color.g, color.b);
 	    }
 	    this.colorImage.visible = true;
 	} else {
@@ -121,7 +137,10 @@ Play.prototype = {
 	this.graphics.beginFill(0x000000, 1);
 	this.graphics.drawRect(0, 0, 800, 800);
 	this.particles.forEach(function(particle) {
-	    this.graphics.beginFill(particle.color, 1);
+	    this.graphics.beginFill(
+		Phaser.Color.getColor(particle.color.r, particle.color.g, particle.color.b),
+		1
+	    );
 	    this.graphics.drawEllipse(particle.x, particle.y, this.game.PARTICLE_SIZE, this.game.PARTICLE_SIZE);
 
 	    var sprite;
@@ -134,6 +153,25 @@ Play.prototype = {
 		}
 	    }
 	}, this, true);
+
+	if (this.game.input.mousePointer.isDown) {
+		if (this.x.isDown) {
+			var bodies = this.game.physics.p2.hitTest(this.game.input.mousePointer.position, this.particles.children);
+			if (bodies.length) {
+				if (!bodies[0].selected) {
+					bodies[0].selected = true;
+					this.selectedParticles.push(bodies[0]);
+				}
+			}
+		}
+	}
+
+	if (this.c.isDown) {
+		for (var i = 0; i < this.selectedParticles.length; i++) {
+			this.selectedParticles[i].selected = false;
+		}
+		this.selectedParticles = [];
+	}
     },
 };
 
