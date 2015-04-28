@@ -182,6 +182,16 @@ Play.prototype = {
 	this.game.input.onUp.add(this.release, this);
 
 	this.dragging = false;
+
+	this.graphics = this.game.add.graphics();
+	var blurX = this.game.add.filter('BlurX');
+	blurX.blur = 20;
+	var blurY = this.game.add.filter('BlurY');
+	blurY.blur = 20;
+	var threshold = this.game.add.filter('Gray');
+
+	this.graphics.filters = [blurX, blurY, threshold];
+
     },
     click: function (pointer) {
 	var bodies = this.game.physics.p2.hitTest(pointer.position, this.particles.children);
@@ -203,7 +213,13 @@ Play.prototype = {
 		this.particles.add(new Particle(this.game, this.game.input.mousePointer.position.x, this.game.input.mousePointer.position.y, this.particles.total + 1, "player2", this.spriteMaterial, this.player2CG, this.player1CG));
 	}
 
+	this.graphics.clear();
+	this.graphics.beginFill(0x000000, 1);
+	this.graphics.drawRect(0, 0, 800, 800);
+	this.graphics.beginFill(0xFFFFFF, 1);
 	this.particles.forEach(function(particle) {
+	    this.graphics.drawEllipse(particle.x - 8, particle.y - 8, 16, 16);
+
 	    var sprite;
 	    var maxDist = 32;
 	    for (var i = 0; i < particle.connections.length; i++) {
@@ -213,7 +229,7 @@ Play.prototype = {
 		    particle.connections.splice(i, 1);
 		}
 	    }
-	}, this, true)
+	}, this, true);
     },
 };
 
@@ -223,32 +239,34 @@ module.exports = Play;
 
 'use strict';
 function Preload() {
-  this.asset = null;
-  this.ready = false;
+    this.asset = null;
+    this.ready = false;
 }
 
 Preload.prototype = {
-  preload: function() {
-    this.asset = this.add.sprite(this.width/2,this.height/2, 'preloader');
-    this.asset.anchor.setTo(0.5, 0.5);
+    preload: function() {
+	this.asset = this.add.sprite(this.width/2,this.height/2, 'preloader');
+	this.asset.anchor.setTo(0.5, 0.5);
 
-    this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
-    this.load.setPreloadSprite(this.asset);
+	this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
+	this.load.setPreloadSprite(this.asset);
 
-    this.load.image('circle', 'assets/circle.png');
-
-  },
-  create: function() {
-    this.asset.cropEnabled = false;
-  },
-  update: function() {
-    if(!!this.ready) {
-      this.game.state.start('play');
+	this.load.image('circle', 'assets/circle.png');
+	this.load.script('filterX', 'https://cdn.rawgit.com/photonstorm/phaser/master/filters/BlurX.js');
+	this.load.script('filterY', 'https://cdn.rawgit.com/photonstorm/phaser/master/filters/BlurY.js');
+	this.load.script('threshold', 'assets/threshold.js');
+    },
+    create: function() {
+	this.asset.cropEnabled = false;
+    },
+    update: function() {
+	if(!!this.ready) {
+	    this.game.state.start('play');
+	}
+    },
+    onLoadComplete: function() {
+	this.ready = true;
     }
-  },
-  onLoadComplete: function() {
-    this.ready = true;
-  }
 };
 
 module.exports = Preload;
