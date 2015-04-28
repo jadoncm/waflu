@@ -16,7 +16,7 @@ Phaser.Filter.Threshold = function (game) {
         "void main(void) {",
         "gl_FragColor = texture2D(uSampler, vTextureCoord);",
 	"   if (gl_FragColor.r + gl_FragColor.g + gl_FragColor.b > threshold)",
-        "       gl_FragColor.rgb = vec3(1);",
+        "       gl_FragColor.rgb = vec3(gl_FragColor.r, gl_FragColor.g, gl_FragColor.b);",
         "   else",
         "       gl_FragColor.rgb = vec3(0);",
         "}"

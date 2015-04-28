@@ -10,21 +10,21 @@ window.onload = function () {
   game.state.add('gameover', require('./states/gameover'));
   game.state.add('menu', require('./states/menu'));
   game.state.add('play', require('./states/play'));
-  game.state.add('play_alt', require('./states/play_alt'));
   game.state.add('preload', require('./states/preload'));
   
 
   game.state.start('boot');
 };
-},{"./states/boot":3,"./states/gameover":4,"./states/menu":5,"./states/play":6,"./states/play_alt":7,"./states/preload":8}],2:[function(require,module,exports){
+},{"./states/boot":3,"./states/gameover":4,"./states/menu":5,"./states/play":6,"./states/preload":7}],2:[function(require,module,exports){
 'use strict';
 
-var Particle = function(game, x, y, id, player, material, myCollisionGroup, otherCollisionGroup) {
+var Particle = function(game, x, y, id, player, color, material, myCollisionGroup, otherCollisionGroup) {
     Phaser.Sprite.call(this, game, x, y);
 
     this.game.physics.p2.enable(this, false);
     
-    this.color = 0xFFFFFF;
+    this.color = color;
+
     this.id = id;
     this.body.setMaterial(material);
     this.body.setCircle(this.game.PARTICLE_SIZE);
@@ -164,8 +164,10 @@ Play.prototype = {
 	this.player2CG = this.game.physics.p2.createCollisionGroup();
 	this.game.physics.p2.updateBoundsCollisionGroup();
 
+	this.color = 0xFFFFFF;
 	this.particles = this.game.add.group();
 	this.shift = this.game.input.keyboard.addKey(Phaser.Keyboard.SHIFT);
+	this.z = this.game.input.keyboard.addKey(Phaser.Keyboard.Z);
 	
 	this.mouseBody = this.game.add.sprite(100, 100);
 	this.mouseSpring = null;
@@ -192,25 +194,69 @@ Play.prototype = {
 	threshold.threshold = 1;
 
 	this.graphics.filters = [blurX, blurY, threshold];
+
+	this.colorBitmap = this.game.make.bitmapData(800, 800);
+	this.colorBitmap.draw('colors', 35, 35);
+	this.colorBitmap.update();
+	this.colorImage = this.colorBitmap.addToWorld();
+
+	this.tooltip = this.game.make.bitmapData(64, 64);
+	this.tooltipSprite = this.game.add.sprite(0, 0, this.tooltip);
+
+	this.game.input.addMoveCallback(this.updateTooltip, this);
     },
-    click: function (pointer) {
+
+    updateTooltip: function(pointer, x, y) {
+	if (this.z.isDown) {
+	    var color = this.colorBitmap.getPixelRGB(Math.floor(x), Math.floor(y));
+	    if (color.a) {
+		this.tooltipSprite.visible = true;
+		this.tooltip.fill(0, 0, 0);
+		this.tooltip.rect(1, 1, 62, 62, color.rgba);
+		
+		this.tooltipSprite.x = x - 32;
+		this.tooltipSprite.y = y - 32;
+
+	    } else {
+		this.tooltipSprite.visible = false;
+	    }
+	}
+    },
+
+    click: function(pointer) {
 	var bodies = this.game.physics.p2.hitTest(pointer.position, this.particles.children);
 	if (bodies.length) {
 	    this.dragging = true;
 	    this.mouseSpring = this.game.physics.p2.createSpring(this.mouseBody, bodies[0], 0, 5, 1);
 	}
     },
-    release: function () {
+
+    release: function() {
 	this.dragging = false;
 	this.game.physics.p2.removeSpring(this.mouseSpring);
     },
+
     update: function() {
-	var bodies = this.game.physics.p2.hitTest(this.game.input.mousePointer.position, this.particles.children);
-	if (this.game.input.mousePointer.isDown && !bodies.length && !this.dragging) {
+	var mousePos = this.game.input.mousePointer.position;
+
+	if (this.z.isDown) {
+	    if (this.game.input.mousePointer.isDown) {
+		var color = this.colorBitmap.getPixelRGB(
+		    Math.floor(mousePos.x), Math.floor(mousePos.y));
+		this.color = Phaser.Color.getColor(color.r, color.g, color.b);
+	    }
+	    this.colorImage.visible = true;
+	} else {
+	    this.colorImage.visible = false;
+	    this.tooltipSprite.visible = false;
+	}
+
+	var bodies = this.game.physics.p2.hitTest(mousePos, this.particles.children);
+	if (this.game.input.mousePointer.isDown && !bodies.length && !this.dragging && !this.z.isDown) {
 	    if (this.shift.isDown)
-		this.particles.add(new Particle(this.game, this.game.input.mousePointer.position.x, this.game.input.mousePointer.position.y, this.particles.total + 1, "player1", this.spriteMaterial, this.player1CG, this.player2CG));
+		this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, "player1", this.color, this.spriteMaterial, this.player1CG, this.player2CG));
 	    else
-		this.particles.add(new Particle(this.game, this.game.input.mousePointer.position.x, this.game.input.mousePointer.position.y, this.particles.total + 1, "player2", this.spriteMaterial, this.player2CG, this.player1CG));
+		this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, "player2", this.color, this.spriteMaterial, this.player2CG, this.player1CG));
 	}
 
 	this.graphics.clear();
@@ -236,102 +282,6 @@ Play.prototype = {
 module.exports = Play;
 
 },{"../prefabs/particle":2}],7:[function(require,module,exports){
-'use strict';
-
-var Particle = require('../prefabs/particle');
-
-function Play() {}
-Play.prototype = {
-    create: function() {
-		this.game.physics.startSystem(Phaser.Physics.P2JS);
-
-		this.game.physics.p2.setImpactEvents(true);
-		// this.game.physics.p2.gravity.y = 300;
-
-		this.spriteMaterial = this.game.physics.p2.createMaterial('spriteMaterial');
-		this.worldMaterial = this.game.physics.p2.createMaterial('worldMaterial');
-		this.contactMaterial = this.game.physics.p2.createContactMaterial(this.spriteMaterial, this.worldMaterial, { restitution: 1.0 });
-
-		this.game.physics.p2.setWorldMaterial(this.worldMaterial);
-
-		this.player1CG = this.game.physics.p2.createCollisionGroup();
-		this.player2CG = this.game.physics.p2.createCollisionGroup();
-		this.game.physics.p2.updateBoundsCollisionGroup();
-
-		this.particles = this.game.add.group();
-		this.shift = this.game.input.keyboard.addKey(Phaser.Keyboard.SHIFT);
-		
-		this.mouseBody = this.game.add.sprite(100, 100, 'circle');
-		this.mouseSpring = null;
-		this.game.physics.p2.enable(this.mouseBody, true);
-		this.mouseBody.body.static = true;
-		this.mouseBody.body.setCircle(10);
-		this.mouseBody.body.data.shapes[0].sensor = true;
-		this.game.input.addMoveCallback(function (pointer, x, y, isDown) {
-		    this.mouseBody.body.x = x;
-		    this.mouseBody.body.y = y;
-		}, this);
-
-		this.game.input.onDown.add(this.click, this);
-		this.game.input.onUp.add(this.release, this);
-
-		this.dragging = false;
-
-		this.graphics = this.game.add.graphics();
-		var blurX = this.game.add.filter('BlurX');
-		blurX.blur = 20;
-		var blurY = this.game.add.filter('BlurY');
-		blurY.blur = 20;
-		var threshold = this.game.add.filter('Threshold');
-		threshold.threshold = 2;
-
-		this.graphics.filters = [blurX, blurY, threshold];
-    },
-    click: function (pointer) {
-		var bodies = this.game.physics.p2.hitTest(pointer.position, this.particles.children);
-		if (bodies.length) {
-		    this.dragging = true;
-		    this.mouseSpring = this.game.physics.p2.createSpring(this.mouseBody, bodies[0], 0, 5, 1);
-		}
-    },
-    release: function () {
-		this.dragging = false;
-		this.game.physics.p2.removeSpring(this.mouseSpring);
-    },
-    update: function() {
-		var bodies = this.game.physics.p2.hitTest(this.game.input.mousePointer.position, this.particles.children);
-		if (this.game.input.mousePointer.isDown && !bodies.length && !this.dragging) {
-			var p = new Particle(this.game, this.game.input.mousePointer.position.x, this.game.input.mousePointer.position.y, this.particles.total + 1, "player1", this.spriteMaterial, this.player1CG, this.player2CG);
-		    if (this.shift.isDown) {
-				p.player = "player2";
-				p.body.setCollisionGroup(this.player2CG);
-			}
-			p.body.damping = 0.7;
-		}
-
-		this.graphics.clear();
-		this.graphics.beginFill(0x000000, 1);
-		this.graphics.drawRect(0, 0, 800, 800);
-		this.graphics.beginFill(0xFFFFFF, 1);
-		this.particles.forEach(function(particle) {
-		    this.graphics.drawEllipse(particle.x - 8, particle.y - 8, 16, 16);
-
-		    var sprite;
-		    var maxDist = 32;
-		    for (var i = 0; i < particle.connections.length; i++) {
-			sprite = particle.connections[i].sprite;
-			if (Math.sqrt(Math.pow(sprite.x - particle.x, 2) + Math.pow(sprite.x - particle.x, 2)) > maxDist) {
-			    this.game.physics.p2.removeSpring(particle.connections[i].spring);
-			    particle.connections.splice(i, 1);
-			}
-		    }
-		}, this, true);
-    }
-};
-
-module.exports = Play;
-
-},{"../prefabs/particle":2}],8:[function(require,module,exports){
 
 'use strict';
 function Preload() {
@@ -350,6 +300,8 @@ Preload.prototype = {
 	this.load.script('filterX', 'https://cdn.rawgit.com/photonstorm/phaser/master/filters/BlurX.js');
 	this.load.script('filterY', 'https://cdn.rawgit.com/photonstorm/phaser/master/filters/BlurY.js');
 	this.load.script('threshold', 'assets/threshold.js');
+
+	this.load.image('colors', 'assets/colors.png');
     },
     create: function() {
 	this.asset.cropEnabled = false;

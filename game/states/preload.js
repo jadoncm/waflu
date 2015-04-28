@@ -16,6 +16,8 @@ Preload.prototype = {
 	this.load.script('filterX', 'https://cdn.rawgit.com/photonstorm/phaser/master/filters/BlurX.js');
 	this.load.script('filterY', 'https://cdn.rawgit.com/photonstorm/phaser/master/filters/BlurY.js');
 	this.load.script('threshold', 'assets/threshold.js');
+
+	this.load.image('colors', 'assets/colors.png');
     },
     create: function() {
 	this.asset.cropEnabled = false;

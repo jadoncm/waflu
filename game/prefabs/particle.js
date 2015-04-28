@@ -1,11 +1,12 @@
 'use strict';
 
-var Particle = function(game, x, y, id, player, material, myCollisionGroup, otherCollisionGroup) {
+var Particle = function(game, x, y, id, player, color, material, myCollisionGroup, otherCollisionGroup) {
     Phaser.Sprite.call(this, game, x, y);
 
     this.game.physics.p2.enable(this, false);
     
-    this.color = 0xFFFFFF;
+    this.color = color;
+
     this.id = id;
     this.body.setMaterial(material);
     this.body.setCircle(this.game.PARTICLE_SIZE);

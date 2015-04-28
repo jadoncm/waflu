@@ -22,8 +22,10 @@ Play.prototype = {
 	this.player2CG = this.game.physics.p2.createCollisionGroup();
 	this.game.physics.p2.updateBoundsCollisionGroup();
 
+	this.color = 0xFFFFFF;
 	this.particles = this.game.add.group();
 	this.shift = this.game.input.keyboard.addKey(Phaser.Keyboard.SHIFT);
+	this.z = this.game.input.keyboard.addKey(Phaser.Keyboard.Z);
 	
 	this.mouseBody = this.game.add.sprite(100, 100);
 	this.mouseSpring = null;
@@ -50,25 +52,69 @@ Play.prototype = {
 	threshold.threshold = 1;
 
 	this.graphics.filters = [blurX, blurY, threshold];
+
+	this.colorBitmap = this.game.make.bitmapData(800, 800);
+	this.colorBitmap.draw('colors', 35, 35);
+	this.colorBitmap.update();
+	this.colorImage = this.colorBitmap.addToWorld();
+
+	this.tooltip = this.game.make.bitmapData(64, 64);
+	this.tooltipSprite = this.game.add.sprite(0, 0, this.tooltip);
+
+	this.game.input.addMoveCallback(this.updateTooltip, this);
     },
-    click: function (pointer) {
+
+    updateTooltip: function(pointer, x, y) {
+	if (this.z.isDown) {
+	    var color = this.colorBitmap.getPixelRGB(Math.floor(x), Math.floor(y));
+	    if (color.a) {
+		this.tooltipSprite.visible = true;
+		this.tooltip.fill(0, 0, 0);
+		this.tooltip.rect(1, 1, 62, 62, color.rgba);
+		
+		this.tooltipSprite.x = x - 32;
+		this.tooltipSprite.y = y - 32;
+
+	    } else {
+		this.tooltipSprite.visible = false;
+	    }
+	}
+    },
+
+    click: function(pointer) {
 	var bodies = this.game.physics.p2.hitTest(pointer.position, this.particles.children);
 	if (bodies.length) {
 	    this.dragging = true;
 	    this.mouseSpring = this.game.physics.p2.createSpring(this.mouseBody, bodies[0], 0, 5, 1);
 	}
     },
-    release: function () {
+
+    release: function() {
 	this.dragging = false;
 	this.game.physics.p2.removeSpring(this.mouseSpring);
     },
+
     update: function() {
-	var bodies = this.game.physics.p2.hitTest(this.game.input.mousePointer.position, this.particles.children);
-	if (this.game.input.mousePointer.isDown && !bodies.length && !this.dragging) {
+	var mousePos = this.game.input.mousePointer.position;
+
+	if (this.z.isDown) {
+	    if (this.game.input.mousePointer.isDown) {
+		var color = this.colorBitmap.getPixelRGB(
+		    Math.floor(mousePos.x), Math.floor(mousePos.y));
+		this.color = Phaser.Color.getColor(color.r, color.g, color.b);
+	    }
+	    this.colorImage.visible = true;
+	} else {
+	    this.colorImage.visible = false;
+	    this.tooltipSprite.visible = false;
+	}
+
+	var bodies = this.game.physics.p2.hitTest(mousePos, this.particles.children);
+	if (this.game.input.mousePointer.isDown && !bodies.length && !this.dragging && !this.z.isDown) {
 	    if (this.shift.isDown)
-		this.particles.add(new Particle(this.game, this.game.input.mousePointer.position.x, this.game.input.mousePointer.position.y, this.particles.total + 1, "player1", this.spriteMaterial, this.player1CG, this.player2CG));
+		this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, "player1", this.color, this.spriteMaterial, this.player1CG, this.player2CG));
 	    else
-		this.particles.add(new Particle(this.game, this.game.input.mousePointer.position.x, this.game.input.mousePointer.position.y, this.particles.total + 1, "player2", this.spriteMaterial, this.player2CG, this.player1CG));
+		this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, "player2", this.color, this.spriteMaterial, this.player2CG, this.player1CG));
 	}
 
 	this.graphics.clear();
