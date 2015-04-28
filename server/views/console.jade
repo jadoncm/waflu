@@ -135,6 +135,7 @@ html
       });
       socket.on('change name', function (socketid, name) {
         console.log(socketid);
+        console.log(name);
         var oldname = global.names[socketid];
         global.names[socketid] = name;
         logit(oldname + ' changed name to ' + name);

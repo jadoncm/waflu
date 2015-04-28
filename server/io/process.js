@@ -7,13 +7,7 @@ module.exports = function(server, socket) {
 
 
   socket.on('all names', function() {
-    var names = {};
-    for (var key in server.sockets) {
-      s = server.sockets[key];
-      names[s.id] = s.name;
-    }
-    socket.emit('all names', names);
-    console.log('all names: ' + socket.id);
+    socket.emitAllNames();
   });
   socket.on('set name', function (name) {
     function fail(err) {
