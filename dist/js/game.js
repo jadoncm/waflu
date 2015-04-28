@@ -23,9 +23,10 @@ var Particle = function(game, x, y, id, player, material, myCollisionGroup, othe
 
     this.game.physics.p2.enable(this, false);
     
+    this.color = 0xFFFFFF;
     this.id = id;
     this.body.setMaterial(material);
-    this.body.setCircle(8);
+    this.body.setCircle(this.game.PARTICLE_SIZE);
     this.body.setCollisionGroup(myCollisionGroup);
     this.body.collides(otherCollisionGroup, this.collideOpponent, this);
     this.body.collides(myCollisionGroup, this.collideOwn, this);
@@ -144,6 +145,8 @@ var Particle = require('../prefabs/particle');
 function Play() {}
 Play.prototype = {
     create: function() {
+	this.game.PARTICLE_SIZE = 8;
+
 	this.game.physics.startSystem(Phaser.Physics.P2JS);
 
 	this.game.physics.p2.setImpactEvents(true);
@@ -211,9 +214,9 @@ Play.prototype = {
 	this.graphics.clear();
 	this.graphics.beginFill(0x000000, 1);
 	this.graphics.drawRect(0, 0, 800, 800);
-	this.graphics.beginFill(0xFFFFFF, 1);
 	this.particles.forEach(function(particle) {
-	    this.graphics.drawEllipse(particle.x, particle.y, 8, 8);
+	    this.graphics.beginFill(particle.color, 1);
+	    this.graphics.drawEllipse(particle.x, particle.y, this.game.PARTICLE_SIZE, this.game.PARTICLE_SIZE);
 
 	    var sprite;
 	    var maxDist = 32;

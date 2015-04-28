@@ -5,6 +5,8 @@ var Particle = require('../prefabs/particle');
 function Play() {}
 Play.prototype = {
     create: function() {
+	this.game.PARTICLE_SIZE = 8;
+
 	this.game.physics.startSystem(Phaser.Physics.P2JS);
 
 	this.game.physics.p2.setImpactEvents(true);
@@ -72,9 +74,9 @@ Play.prototype = {
 	this.graphics.clear();
 	this.graphics.beginFill(0x000000, 1);
 	this.graphics.drawRect(0, 0, 800, 800);
-	this.graphics.beginFill(0xFFFFFF, 1);
 	this.particles.forEach(function(particle) {
-	    this.graphics.drawEllipse(particle.x, particle.y, 8, 8);
+	    this.graphics.beginFill(particle.color, 1);
+	    this.graphics.drawEllipse(particle.x, particle.y, this.game.PARTICLE_SIZE, this.game.PARTICLE_SIZE);
 
 	    var sprite;
 	    var maxDist = 32;

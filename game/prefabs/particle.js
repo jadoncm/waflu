@@ -5,9 +5,10 @@ var Particle = function(game, x, y, id, player, material, myCollisionGroup, othe
 
     this.game.physics.p2.enable(this, false);
     
+    this.color = 0xFFFFFF;
     this.id = id;
     this.body.setMaterial(material);
-    this.body.setCircle(8);
+    this.body.setCircle(this.game.PARTICLE_SIZE);
     this.body.setCollisionGroup(myCollisionGroup);
     this.body.collides(otherCollisionGroup, this.collideOpponent, this);
     this.body.collides(myCollisionGroup, this.collideOwn, this);
