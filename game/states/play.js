@@ -27,13 +27,13 @@ Play.prototype = {
 	this.z = this.game.input.keyboard.addKey(Phaser.Keyboard.Z);
 	this.x = this.game.input.keyboard.addKey(Phaser.Keyboard.X);
 	this.c = this.game.input.keyboard.addKey(Phaser.Keyboard.C);
+	this.v = this.game.input.keyboard.addKey(Phaser.Keyboard.V);
 	
 	this.mouseBody = this.game.add.sprite(100, 100);
-	this.mouseSpring = null;
 	this.dragSprings = [];
 	this.game.physics.p2.enable(this.mouseBody, true);
 	this.mouseBody.body.static = true;
-	this.mouseBody.body.setCircle(10);
+	this.mouseBody.body.setCircle(this.game.PARTICLE_SIZE);
 	this.mouseBody.body.data.shapes[0].sensor = true;
 	this.game.input.addMoveCallback(function (pointer, x, y, isDown) {
 	    this.mouseBody.body.x = x;
@@ -66,6 +66,7 @@ Play.prototype = {
 	this.game.input.addMoveCallback(this.updateTooltip, this);
 
 	this.selectedParticles = [];
+	this.selectedGraphics = this.game.add.graphics();
     },
 
     updateTooltip: function(pointer, x, y) {
@@ -86,13 +87,8 @@ Play.prototype = {
     },
 
     click: function(pointer) {
-	var bodies = this.game.physics.p2.hitTest(pointer.position, this.particles.children);
-	if (bodies.length) {
-	    this.dragging = true;
-	    this.mouseSpring = this.game.physics.p2.createSpring(this.mouseBody, bodies[0], 16, 5, 1);
-	}
-
-	if (this.selectedParticles.length) {
+	var mouseDown = this.game.input.mousePointer.isDown;
+	if (mouseDown && !this.z.isDown && !this.x.isDown && !this.c.isDown && !this.v.isDown) {
 		this.dragging = true;
 		for (var i = 0; i < this.selectedParticles.length; i++) {
 			this.dragSprings.push(this.game.physics.p2.createSpring(this.mouseBody, this.selectedParticles[i], 16, 5, 1));
@@ -102,20 +98,22 @@ Play.prototype = {
     },
 
     release: function() {
-	this.dragging = false;
-	this.game.physics.p2.removeSpring(this.mouseSpring);
+	if (this.dragging) {
+	    this.dragging = false;
 
-	for (var i = 0; i < this.dragSprings.length; i++) {
+	    for (var i = 0; i < this.dragSprings.length; i++) {
 		this.game.physics.p2.removeSpring(this.dragSprings[i]);
+	    }
+	    this.dragSprings = [];
 	}
-	this.dragSprings = [];
     },
 
     update: function() {
 	var mousePos = this.game.input.mousePointer.position;
+	var mouseDown = this.game.input.mousePointer.isDown;
 
 	if (this.z.isDown) {
-	    if (this.game.input.mousePointer.isDown) {
+	    if (mouseDown) {
 		this.color = this.colorBitmap.getPixelRGB(
 		    Math.floor(mousePos.x), Math.floor(mousePos.y));
 	    }
@@ -126,7 +124,21 @@ Play.prototype = {
 	}
 
 	var bodies = this.game.physics.p2.hitTest(mousePos, this.particles.children);
-	if (this.game.input.mousePointer.isDown && !bodies.length && !this.dragging && !this.z.isDown) {
+	if (this.c.isDown) {
+	    if (mouseDown && bodies.length && !bodies[0].selected) {
+		bodies[0].selected = true;
+		this.selectedParticles.push(bodies[0]);
+	    }
+	}
+
+	if (this.v.isDown) {
+		for (var i = 0; i < this.selectedParticles.length; i++) {
+			this.selectedParticles[i].selected = false;
+		}
+		this.selectedParticles = [];
+	}
+
+	if (this.x.isDown && mouseDown) {
 	    if (this.shift.isDown)
 		this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, "player1", this.color, this.spriteMaterial, this.player1CG, this.player2CG));
 	    else
@@ -154,23 +166,11 @@ Play.prototype = {
 	    }
 	}, this, true);
 
-	if (this.game.input.mousePointer.isDown) {
-		if (this.x.isDown) {
-			var bodies = this.game.physics.p2.hitTest(this.game.input.mousePointer.position, this.particles.children);
-			if (bodies.length) {
-				if (!bodies[0].selected) {
-					bodies[0].selected = true;
-					this.selectedParticles.push(bodies[0]);
-				}
-			}
-		}
-	}
-
-	if (this.c.isDown) {
-		for (var i = 0; i < this.selectedParticles.length; i++) {
-			this.selectedParticles[i].selected = false;
-		}
-		this.selectedParticles = [];
+	this.selectedGraphics.clear();
+	for (var i = 0; i < this.selectedParticles.length; i++) {
+	    var particle = this.selectedParticles[i].parent.sprite;
+	    this.selectedGraphics.lineStyle(2, 0xFFFFFF);
+	    this.selectedGraphics.arc(particle.x, particle.y, this.game.PARTICLE_SIZE, 0, 2*Math.PI);
 	}
     },
 };
