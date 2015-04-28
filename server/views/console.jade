@@ -1,0 +1,239 @@
+html
+  head
+    title Fluwa Server Console
+    style.
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        white-space: pre-line;
+      }
+      body {
+        font: 13px Helvetica, Arial;
+      }
+  body
+    #rooms
+
+    br
+    br
+    #myroom
+    input(id='roomname', placeholder='Room Name')
+    input(type='button', id='createroom', value='Create Room')
+    input(type='button', id='deleteroom', value='Delete Room')
+    input(type='button', id='joinroom', value='Join Room')
+    input(type='button', id='leaveroom', value='Leave Room')
+    br
+    br
+    #myname
+    input(id='username', placeholder='My Name')
+    input(type='button', id='setname', value='Set Name')
+    br
+    br
+    #thegame
+    input(type='button', id='startgame', value='Start Game')
+    input(type='button', id='turndata', value='Send Turn')
+    input(type='button', id='gameover', value='I Win')
+
+    #log
+
+    script(src="https://cdn.socket.io/socket.io-1.2.0.js")
+    script(src="http://code.jquery.com/jquery-1.11.1.js")
+    script.
+      var socket = io.connect('localhost:8080');
+
+      // Setup
+      var me = '';
+      var global = {
+        rooms: {},
+        names: {}
+      };
+      var gameStarted = false;
+
+      global.names[me] = 'me';
+      socket.room = null;
+      socket.emit('all games');
+      socket.emit('all names');
+
+      // Interface
+      $('#setname').click(function() {
+        var name = $('#username').val();
+        global.setname = name;
+        socket.emit('set name', name);
+      })
+      $('#createroom').click(function() {
+        var name = $('#roomname').val();
+        global.createroom = name;
+        socket.emit('create game', name);
+      });
+      $('#deleteroom').click(function() {
+        var name = $('#roomname').val();
+        global.deleteroom = name;
+        socket.emit('delete game');
+      });
+      $('#joinroom').click(function() {
+        var name = $('#roomname').val();
+        global.joinroom = name;
+        socket.emit('join game', name);
+      });
+      $('#leaveroom').click(function() {
+        var name = $('#roomname').val();
+        global.leaveroom = name;
+        socket.emit('leave game');
+      });
+
+      $('#startgame').click(function() {
+        socket.emit('start game');
+      });
+      $('#turndata').click(function() {
+        socket.emit('turn data', {});
+        logit('finished turn');
+      });
+      $('#gameover').click(function() {
+        logit('you won');
+        socket.emit('game over', global.rooms[socket.room].host);
+        endGame();
+      });
+
+      // Functions
+      function nameOf(socketid) {
+        return global.names[socketid];
+      }
+      function updateName() {
+        $('#myname').html('my name: ' + global.names[me]);
+        updateRooms();
+      }
+      function createRoom(name, host) {
+        logit('created room ' + name);
+        global.rooms[name] = {
+          host: host,
+          guest: null
+        };
+        updateRooms();
+      }
+      function joinRoom(name) {
+        logit('joined room ' + name);
+        socket.room = name;
+        global.rooms[name].guest = me;
+        updateRooms();
+      }
+      function leaveRoom() {
+        var name = socket.room;
+        logit('left room ' + name);
+        socket.room = null;
+        updateRoom(name, null);
+      }
+      function deleteRoom(name) {
+        logit('deleted room ' + name);
+        if (global.rooms[name].guest == me) socket.room = null;
+        delete global.rooms[name];
+        updateRooms();
+      }
+      function updateRoom(name, guest) {
+        if (guest)
+          logit(nameOf(guest) + ' joined ' + name);
+        else
+          logit(nameOf(global.rooms[name].guest) + ' left ' + name);
+        global.rooms[name].guest = guest;
+        updateRooms();
+      }
+      function updateRooms() {
+        $('#rooms').html('');
+        for (var name in global.rooms) {
+          var host = nameOf(global.rooms[name].host),
+              guest = nameOf(global.rooms[name].guest);
+          $('#rooms').append(name + ' | ' + host + ', ' + guest + '<br />');
+        }
+        $('#myroom').html('myroom: ' + socket.room);
+      }
+      function logit(err) {
+        $('#log').append(err + '<br />');
+      }
+
+      function startGame() {
+        gameStarted = true;
+        logit('game started');
+      }
+      function endGame() {
+        gameStarted = false;
+        logit('game ended');
+      }
+
+      // IO
+      socket.on('all names', function (names) {
+        console.log(names);
+        var myname = global.names[me];
+        global.names = names;
+        global.names[me] = myname;
+        updateName();
+      });
+      socket.on('set name succeed', function () {
+        global.names[me] = global.setname;
+        logit('changed name to ' + global.setname);
+        updateName();
+      });
+      socket.on('set name fail', function (err) {
+        logit(err)
+      });
+      socket.on('change name', function (socketid, name) {
+        console.log(socketid);
+        console.log(name);
+        var oldname = global.names[socketid];
+        global.names[socketid] = name;
+        logit(oldname + ' changed name to ' + name);
+        updateRooms();
+      });
+      socket.on('all games', function (rooms) {
+        console.log(rooms);
+        global.rooms = rooms;
+        updateRooms();
+      });
+      socket.on('create game succeed', function () {
+        socket.room = global.createroom;
+        createRoom(global.createroom, me);
+      });
+      socket.on('create game fail', function (err) {
+        logit(err);
+      });
+      socket.on('new game', function (name, host) {
+        createRoom(name, host);
+      });
+      socket.on('delete game succeed', function() {
+        deleteRoom(global.deleteroom);
+      });
+      socket.on('delete game fail', function (err) {
+        logit(err);
+      });
+      socket.on('deleted game', function (name) {
+        deleteRoom(name);
+      });
+      socket.on('join game succeed', function() {
+        joinRoom(global.joinroom);
+      });
+      socket.on('join game fail', function (err) {
+        logit(err);
+      });
+      socket.on('leave game succeed', function() {
+        leaveRoom(global.leaveroom);
+      });
+      socket.on('leave game fail', function (err) {
+        logit(err);
+      });
+      socket.on('updated game', function (name, guest) {
+        updateRoom(name, guest);
+      });
+      socket.on('start game succeed', function() {
+        startGame();
+      });
+      socket.on('start game fail', function (err) {
+        logit(err);
+      });
+      socket.on('game started', function() {
+        startGame();
+      });
+      socket.on('turn data', function (data) {
+        logit('other player finished turn: ' + data);
+      });
+      socket.on('game over', function() {
+        logit('other player won');
+        endGame();
+      });
