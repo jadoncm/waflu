@@ -3,7 +3,7 @@
 var Particle = function(game, x, y, id, player, material, myCollisionGroup, otherCollisionGroup) {
     Phaser.Sprite.call(this, game, x, y, 'circle');
 
-    this.game.physics.p2.enable(this, true);
+    this.game.physics.p2.enable(this, false);
     
     this.id = id;
     if (player === "player1")
@@ -37,7 +37,7 @@ Particle.prototype.collideOwn = function(body1, body2) {
     if (body1.sprite.id < body2.sprite.id) {
 	this.connections.push({
 	    sprite: body2.sprite,
-	    spring: this.game.physics.p2.createSpring(body1, body2, 16, 2, 0.3)
+	    spring: this.game.physics.p2.createSpring(body1, body2, 16, 8, 0.3)
 	});
     }
 }
