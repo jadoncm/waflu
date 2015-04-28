@@ -83,4 +83,42 @@ module.exports = function (server) {
 
     callback(null, name);
   }
+  server.startGame = function (socket, callback) {
+    if (!socket.room) {
+      callback('not in a game'); return;
+    }
+    var host = server.rooms[socket.room].host,
+        guest = server.rooms[socket.room].guest;
+    if (host != socket.id) {
+      callback('only host can start game'); return;
+    }
+    if (!guest) {
+      callback('need 2 players'); return;
+    }
+    if (typeof server.rooms[socket.room].started != 'undefined') {
+      callback('game already started'); return;
+    }
+
+    server.sockets[host].join(socket.room);
+    server.sockets[guest].join(socket.room);
+    server.rooms[socket.room].started = true;
+
+    callback(null);
+  }
+  server.endGame = function (socket, callback) {
+    if (!socket.room) {
+      callback('not in a game'); return;
+    }
+    if (typeof server.rooms[socket.room].started == 'undefined') {
+      callback('game not started'); return;
+    }
+
+    var host = server.rooms[socket.room].host,
+        guest = server.rooms[socket.room].guest;
+    server.sockets[host].leave(socket.room);
+    server.sockets[guest].leave(socket.room);
+    delete server.rooms[socket.room].started;
+
+    callback(null);
+  }
 }

@@ -102,4 +102,31 @@ module.exports = function(server, socket) {
     socket.emit('all games', server.rooms);
     console.log('all games: ' + socket.id);
   });
+
+  socket.on('start game', function() {
+    function fail(err) {
+      socket.emit('start game fail', err);
+      console.log('start game fail: ' + socket.id + ' b/c ' + err);
+    }
+    function succeed() {
+      socket.emit('start game succeed');
+      socket.broadcast.to(socket.room).emit('game started');
+      console.log('start game succeed: ' + socket.id + ' | ' + socket.room);
+    }
+
+    server.startGame(socket, function (err) {
+      if (err) fail(err);
+      else succeed();
+    });
+  });
+  socket.on('turn data', function (data) {
+    socket.broadcast.to(socket.room).emit('turn data', data);
+    console.log('finished turn: ' + socket.room + ' | ' + socket.id);
+  });
+  socket.on('game over', function (winner) {
+    socket.broadcast.to(socket.room).emit('game over');
+    console.log('game over: ' + socket.room + ' | winner: ' + winner);
+
+    server.endGame(socket, function () {});
+  });
 }
