@@ -5,7 +5,7 @@ var Particle = require('../prefabs/particle');
 function Play() {}
 Play.prototype = {
     create: function() {
-	this.game.PARTICLE_SIZE = 16;
+	this.game.PARTICLE_SIZE = 8;
 
 	this.game.physics.startSystem(Phaser.Physics.P2JS);
 
@@ -47,9 +47,9 @@ Play.prototype = {
 
 	this.graphics = this.game.add.graphics();
 	var blurX = this.game.add.filter('BlurX');
-	blurX.blur = 40;
+	blurX.blur = 20;
 	var blurY = this.game.add.filter('BlurY');
-	blurY.blur = 40;
+	blurY.blur = 20;
 	var threshold = this.game.add.filter('Threshold');
 	threshold.threshold = 0.5;
 
@@ -167,9 +167,9 @@ Play.prototype = {
 	}, this, true);
 
 	this.selectedGraphics.clear();
+	this.selectedGraphics.lineStyle(2, 0xFFFFFF);
 	for (var i = 0; i < this.selectedParticles.length; i++) {
 	    var particle = this.selectedParticles[i].parent.sprite;
-	    this.selectedGraphics.lineStyle(2, 0xFFFFFF);
 	    this.selectedGraphics.arc(particle.x, particle.y, this.game.PARTICLE_SIZE, 0, 2*Math.PI);
 	}
     },
