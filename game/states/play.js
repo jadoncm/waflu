@@ -17,8 +17,9 @@ Play.prototype = {
 
 	this.game.physics.p2.setWorldMaterial(this.worldMaterial);
 
-	this.player1CG = this.game.physics.p2.createCollisionGroup();
-	this.player2CG = this.game.physics.p2.createCollisionGroup();
+	this.fluidCG = this.game.physics.p2.createCollisionGroup();
+	this.arrowCG = this.game.physics.p2.createCollisionGroup();
+	this.warriorCG = this.game.physics.p2.createCollisionGroup();
 	this.game.physics.p2.updateBoundsCollisionGroup();
 
 	this.color = Phaser.Color.createColor(255, 255, 255);
@@ -89,10 +90,10 @@ Play.prototype = {
     click: function(pointer) {
 	var mouseDown = this.game.input.mousePointer.isDown;
 	if (mouseDown && !this.z.isDown && !this.x.isDown && !this.c.isDown && !this.v.isDown) {
-		this.dragging = true;
-		for (var i = 0; i < this.selectedParticles.length; i++) {
-			this.dragSprings.push(this.game.physics.p2.createSpring(this.mouseBody, this.selectedParticles[i], 16, 5, 1));
-		}
+	    this.dragging = true;
+	    for (var i = 0; i < this.selectedParticles.length; i++) {
+		this.dragSprings.push(this.game.physics.p2.createSpring(this.mouseBody, this.selectedParticles[i], 16, 5, 1));
+	    }
 	}
 
     },
@@ -132,17 +133,14 @@ Play.prototype = {
 	}
 
 	if (this.v.isDown) {
-		for (var i = 0; i < this.selectedParticles.length; i++) {
-			this.selectedParticles[i].selected = false;
-		}
-		this.selectedParticles = [];
+	    for (var i = 0; i < this.selectedParticles.length; i++) {
+		this.selectedParticles[i].selected = false;
+	    }
+	    this.selectedParticles = [];
 	}
 
 	if (this.x.isDown && mouseDown) {
-	    if (this.shift.isDown)
-		this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, "player1", this.color, this.spriteMaterial, this.player1CG, this.player2CG));
-	    else
-		this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, "player2", this.color, this.spriteMaterial, this.player2CG, this.player1CG));
+	    this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, this.color, this.spriteMaterial, this.fluidCG, this.warriorCG, this.arrowCG));
 	}
 
 	this.graphics.clear();
