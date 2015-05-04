@@ -109,6 +109,8 @@ Play.prototype = {
 
   update: function() {
 		var mousePos = this.game.input.mousePointer.position;
+		mousePos.x = Math.floor(mousePos.x);
+		mousePos.y = Math.floor(mousePos.y);
 		var mouseDown = this.game.input.mousePointer.isDown;
 
 		if (this.z.isDown) {
@@ -137,11 +139,18 @@ Play.prototype = {
 			this.selectedParticles = [];
 		}
 
-		if (this.x.isDown && mouseDown) {
+		var isValidPosition = true;
+		if (mousePos.x > 150 && mousePos.x < 650)
+			if (mousePos.y > 150 && mousePos.y < 650)
+				isValidPosition = false;
+
+		if (this.x.isDown && mouseDown && isValidPosition) {
+		// if (mouseDown && isValidPosition) {
+			console.log("PARTICLE --- x:" + mousePos.x + " y:" + mousePos.y + " isValid:" + isValidPosition);
 		    if (this.shift.isDown)
-			this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, "player1", this.color, this.spriteMaterial, this.player1CG, this.player2CG));
+				this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, "player1", this.color, this.spriteMaterial, this.player1CG, this.player2CG));
 		    else
-			this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, "player2", this.color, this.spriteMaterial, this.player2CG, this.player1CG));
+				this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, "player2", this.color, this.spriteMaterial, this.player2CG, this.player1CG));
 		}
 
 		this.graphics.clear();
