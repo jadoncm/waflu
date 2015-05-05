@@ -37,7 +37,7 @@ Phaser.Filter.Threshold = function (game) {
 	"   if (hsv.z > threshold)",
         "       gl_FragColor.rgb = hsv2rgb(vec3(hsv.x, hsv.y, 1));",
         "   else",
-        "       gl_FragColor.rgb = vec3(0);",
+        "       gl_FragColor = vec4(0);",
         "}"
     ];
 

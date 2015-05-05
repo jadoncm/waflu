@@ -95,10 +95,17 @@ UIGroup.prototype.initInfo = function() {
                                             this.info);
     this.info.pp.anchor.set(0.5, 0);
 
-
+    this.info.warrior = this.game.add.group(this.info);
+    this.info.warrior.y = 200;
+    this.info.warrior.image = this.game.add.image(40, 0, "warrior", 130, this.info.warrior);
+    this.info.warrior.hp = this.game.add.bitmapText(110, 40, 'minecraftia',
+                                                    "",
+                                                    16,
+                                                    this.info.warrior);
+    this.info.warrior.graphics = this.game.add.graphics(0, 75, this.info.warrior);
 }
 
-UIGroup.prototype.updateInfo = function(pp, color) {
+UIGroup.prototype.updateInfo = function(pp, color, hp) {
     this.info.pp.text = "Paint Points: " + pp;
 
     var health = Math.floor(color.s*this.game.STAT_MAG);
@@ -107,13 +114,23 @@ UIGroup.prototype.updateInfo = function(pp, color) {
     this.info.attack.text = "Attack: " + attack;
     this.info.cost.text = "Cost: " + (health+attack);
 
+    this.infoGraphics.clear();
     this.infoGraphics.beginFill(Phaser.Color.getColor(
         color.r,
         color.g,
         color.b
     ));
-    this.infoGraphics.lineStyle(1, 0x000000);
-    this.infoGraphics.drawRect(0, 0, 64, 64);
+    this.infoGraphics.lineStyle(2, 0x000000);
+    this.infoGraphics.drawRoundedRect(0, 0, 64, 64, 8);
+
+    this.info.warrior.hp.text = hp + "/" + this.game.WARRIOR_HEALTH;
+
+    this.info.warrior.graphics.clear();
+    this.info.warrior.graphics.beginFill(0xC7F464);
+    this.info.warrior.graphics.drawRoundedRect(50, 0, (this.game.UI_WIDTH - 100) * hp/this.game.WARRIOR_HEALTH, 40, 8);
+    this.info.warrior.graphics.endFill();
+    this.info.warrior.graphics.lineStyle(2, 0x000000);
+    this.info.warrior.graphics.drawRoundedRect(50, 0, this.game.UI_WIDTH - 100, 40, 8);
 }
 
 module.exports = UIGroup;

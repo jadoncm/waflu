@@ -109,7 +109,6 @@ Particle.prototype.delete = function() {
 
 Particle.prototype.loseHealth = function(damage) {
     this.health -= damage;
-    console.log(this.health);
     if (this.health <= 0)
 	this.delete();
     else
