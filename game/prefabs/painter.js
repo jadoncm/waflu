@@ -42,7 +42,18 @@ Painter.prototype.update = function() {
 	    particle.taggedToKill = true;
 	    particle.killTimer = this.game.time.create();
 	    particle.killTimer.add(this.game.KILL_TIME, function () {
-		particle.destroy(true);
+    		particle.destroy(true);
+
+            for (var sprite in particle.connections) {
+                var spring = particle.connections[sprite];
+                this.game.physics.p2.removeSpring(spring);
+                if (typeof sprite.connections !== 'undefined' && 
+                    particle in sprite.connections) {
+                    var spring = sprite.connections[particle];
+                    this.game.physics.p2.removeSpring(spring);
+                    delete sprite.connections[particle];
+                }
+            }
 	    }, this);
 	    particle.killTimer.start();
 	    return;

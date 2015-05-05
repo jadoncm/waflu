@@ -19,7 +19,7 @@ var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arr
     this.selected = false;
     this.taggedToKill = false;
 
-    this.connections = [];
+    this.connections = {};
 
     this.health = this.color.s*this.game.STAT_MAG;
     this.attack = this.color.h*this.game.STAT_MAG;
@@ -70,12 +70,8 @@ Particle.prototype.hitArrow = function(particleBody, arrowBody) {
 }
 
 Particle.prototype.collideParticle = function(body1, body2) {
-    if (body1.sprite.id < body2.sprite.id) {
-	this.connections.push({
-	    sprite: body2.sprite,
-	    spring: this.game.physics.p2.createSpring(body1, body2, 16, 8, 0.3)
-	});
-    }
+    if (!(body2.sprite in this.connections))
+	   this.connections[body2.sprite] = this.game.physics.p2.createSpring(body1, body2, 16, 8, 0.3);
 }
 
 Particle.prototype.loseHealth = function(damage) {
