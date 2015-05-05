@@ -62,9 +62,9 @@ Painter.prototype.update = function() {
     	//     return;
     	// }
 
-        if (particle.inBox() && particle.body.velocity.x < 0.1 && particle.body.velocity.y < 0.1) {
+        if (particle.inBox() && particle.body.velocity.x < 0.1 && particle.body.velocity.y < 0.1 && particle.killable) {
             particle.delete();
-            return
+            return;
         }
 
     	this.graphics.beginFill(Phaser.Color.getColor(
