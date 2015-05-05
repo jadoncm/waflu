@@ -4,8 +4,9 @@ var Particle = require('../prefabs/particle');
 
 function Play() {}
 Play.prototype = {
-  create: function() {
+	create: function() {
 		this.game.PARTICLE_SIZE = 8;
+		this.game.MAX_VELOCITY = 40;
 
 		this.game.physics.startSystem(Phaser.Physics.P2JS);
 
@@ -30,14 +31,15 @@ Play.prototype = {
 		this.v = this.game.input.keyboard.addKey(Phaser.Keyboard.V);
 		
 		this.mouseBody = this.game.add.sprite(100, 100);
+		// mousePos = {x: 0, y: 0};
 		this.dragSprings = [];
 		this.game.physics.p2.enable(this.mouseBody, true);
 		this.mouseBody.body.static = true;
 		this.mouseBody.body.setCircle(this.game.PARTICLE_SIZE);
 		this.mouseBody.body.data.shapes[0].sensor = true;
 		this.game.input.addMoveCallback(function (pointer, x, y, isDown) {
-		    this.mouseBody.body.x = x;
-		    this.mouseBody.body.y = y;
+			this.mouseBody.body.x = x;
+			this.mouseBody.body.y = y;
 		}, this);
 
 		this.game.input.onDown.add(this.click, this);
@@ -67,12 +69,12 @@ Play.prototype = {
 
 		this.selectedParticles = [];
 		this.selectedGraphics = this.game.add.graphics();
-  },
+	},
 
-  updateTooltip: function(pointer, x, y) {
+	updateTooltip: function(pointer, x, y) {
 		if (this.z.isDown) {
-		    var color = this.colorBitmap.getPixelRGB(Math.floor(x), Math.floor(y));
-		    if (color.a) {
+			var color = this.colorBitmap.getPixelRGB(Math.floor(x), Math.floor(y));
+			if (color.a) {
 			this.tooltipSprite.visible = true;
 			this.tooltip.fill(0, 0, 0);
 			this.tooltip.rect(1, 1, 62, 62, color.rgba);
@@ -80,76 +82,92 @@ Play.prototype = {
 			this.tooltipSprite.x = x - 32;
 			this.tooltipSprite.y = y - 32;
 
-		    } else {
+			} else {
 			this.tooltipSprite.visible = false;
-		    }
-		}
-  },
-
-  click: function(pointer) {
-		var mouseDown = this.game.input.mousePointer.isDown;
-		if (mouseDown && !this.z.isDown && !this.x.isDown && !this.c.isDown && !this.v.isDown) {
-			this.dragging = true;
-			for (var i = 0; i < this.selectedParticles.length; i++) {
-				this.dragSprings.push(this.game.physics.p2.createSpring(this.mouseBody, this.selectedParticles[i], 16, 5, 1));
 			}
 		}
-  },
+	},
 
-  release: function() {
-		if (this.dragging) {
-		    this.dragging = false;
-
-		    for (var i = 0; i < this.dragSprings.length; i++) {
-			this.game.physics.p2.removeSpring(this.dragSprings[i]);
-		    }
-		    this.dragSprings = [];
+	velocityF: function(xDiff, yDiff) {
+		var norm = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
+		if (norm < 3) {
+			return {x: 0, y: 0};
+		} else {
+			return {x: xDiff / norm * Math.min(norm, this.game.MAX_VELOCITY), y: yDiff / norm * Math.min(norm, this.game.MAX_VELOCITY)}
 		}
-  },
+	},
 
-  update: function() {
+	click: function(pointer) {
+		var mousePos = this.game.input.mousePointer.position;
+		if (this.insideSquare) {
+			// move particles and deselect them
+			this.selecting = false;
+			for (var i = 0; i < this.selectedParticles.length; i++) {
+				this.selectedParticles[i].selected = false;
+
+				// velocityF makes the velociuty scaling with pointer position nonlinear - bounded total velocity
+				var addedVelocity = this.velocityF(this.selectedParticles[i].parent.sprite.x - mousePos.x, this.selectedParticles[i].parent.sprite.y - mousePos.y);
+				this.selectedParticles[i].velocity[0] += addedVelocity.x;
+				this.selectedParticles[i].velocity[1] += addedVelocity.y;
+				console.log(addedVelocity);
+			}
+			this.selectedParticles = [];
+		} else {
+			// select some particles, or deselect if clicking off a particle
+			var bodies = this.game.physics.p2.hitTest(mousePos, this.particles.children);
+			if (bodies.length == 0) {
+				this.selecting = false;
+				for (var i = 0; i < this.selectedParticles.length; i++) {
+					this.selectedParticles[i].selected = false;
+				}
+				this.selectedParticles = [];
+			} else {
+				this.selecting = true;
+			}
+		}
+
+	},
+
+	release: function() {
+		this.selecting = false;
+	},
+
+	update: function() {
 		var mousePos = this.game.input.mousePointer.position;
 		mousePos.x = Math.floor(mousePos.x);
 		mousePos.y = Math.floor(mousePos.y);
 		var mouseDown = this.game.input.mousePointer.isDown;
-
-		if (this.z.isDown) {
-		    if (mouseDown) {
-			this.color = this.colorBitmap.getPixelRGB(
-			    Math.floor(mousePos.x), Math.floor(mousePos.y));
-		    }
-		    this.colorImage.visible = true;
-		} else {
-		    this.colorImage.visible = false;
-		    this.tooltipSprite.visible = false;
-		}
-
-		var bodies = this.game.physics.p2.hitTest(mousePos, this.particles.children);
-		if (this.c.isDown) {
-		    if (mouseDown && bodies.length && !bodies[0].selected) {
-			bodies[0].selected = true;
-			this.selectedParticles.push(bodies[0]);
-		    }
-		}
-
-		if (this.v.isDown) {
-			for (var i = 0; i < this.selectedParticles.length; i++) {
-				this.selectedParticles[i].selected = false;
-			}
-			this.selectedParticles = [];
-		}
-
-		var isValidPosition = true;
+		this.insideSquare = false;
 		if (mousePos.x > 150 && mousePos.x < 650)
 			if (mousePos.y > 150 && mousePos.y < 650)
-				isValidPosition = false;
+				this.insideSquare = true;
 
-		if (this.x.isDown && mouseDown && isValidPosition) {
-		// if (mouseDown && isValidPosition) {
-			console.log("PARTICLE --- x:" + mousePos.x + " y:" + mousePos.y + " isValid:" + isValidPosition);
-		    if (this.shift.isDown)
+		if (this.z.isDown) {
+			if (mouseDown) {
+			this.color = this.colorBitmap.getPixelRGB(
+				Math.floor(mousePos.x), Math.floor(mousePos.y));
+			}
+			this.colorImage.visible = true;
+		} else {
+			this.colorImage.visible = false;
+			this.tooltipSprite.visible = false;
+		}
+
+		if (mouseDown) {
+			var bodies = this.game.physics.p2.hitTest(mousePos, this.particles.children);
+			if (this.selecting) {
+				if (mouseDown && bodies.length && !bodies[0].selected) {
+					bodies[0].selected = true;
+					this.selectedParticles.push(bodies[0]);
+				}
+			}
+		}
+
+		if (mouseDown && !this.insideSquare && !this.selecting) {
+			// console.log("PARTICLE --- x:" + mousePos.x + " y:" + mousePos.y + " isValid:" + this.insideSquare);
+			if (this.shift.isDown)
 				this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, "player1", this.color, this.spriteMaterial, this.player1CG, this.player2CG));
-		    else
+			else
 				this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, "player2", this.color, this.spriteMaterial, this.player2CG, this.player1CG));
 		}
 
@@ -157,30 +175,30 @@ Play.prototype = {
 		this.graphics.beginFill(0x000000, 1);
 		this.graphics.drawRect(0, 0, 800, 800);
 		this.particles.forEach(function(particle) {
-		    this.graphics.beginFill(
+			this.graphics.beginFill(
 			Phaser.Color.getColor(particle.color.r, particle.color.g, particle.color.b),
 			1
-		    );
-		    this.graphics.drawEllipse(particle.x, particle.y, this.game.PARTICLE_SIZE, this.game.PARTICLE_SIZE);
+			);
+			this.graphics.drawEllipse(particle.x, particle.y, this.game.PARTICLE_SIZE, this.game.PARTICLE_SIZE);
 
-		    var sprite;
-		    var maxDist = 32;
-		    for (var i = 0; i < particle.connections.length; i++) {
+			var sprite;
+			var maxDist = 32;
+			for (var i = 0; i < particle.connections.length; i++) {
 			sprite = particle.connections[i].sprite;
 			if (Math.sqrt(Math.pow(sprite.x - particle.x, 2) + Math.pow(sprite.x - particle.x, 2)) > maxDist) {
-			    this.game.physics.p2.removeSpring(particle.connections[i].spring);
-			    particle.connections.splice(i, 1);
+				this.game.physics.p2.removeSpring(particle.connections[i].spring);
+				particle.connections.splice(i, 1);
 			}
-		    }
+			}
 		}, this, true);
 
 		this.selectedGraphics.clear();
 		this.selectedGraphics.lineStyle(2, 0xFFFFFF);
 		for (var i = 0; i < this.selectedParticles.length; i++) {
-		    var particle = this.selectedParticles[i].parent.sprite;
-		    this.selectedGraphics.arc(particle.x, particle.y, this.game.PARTICLE_SIZE, 0, 2*Math.PI);
+			var particle = this.selectedParticles[i].parent.sprite;
+			this.selectedGraphics.arc(particle.x, particle.y, this.game.PARTICLE_SIZE, 0, 2*Math.PI);
 		}
-  },
+	},
 };
 
 module.exports = Play;
