@@ -7,6 +7,8 @@ var Warrior = function(game, x, y, frame) {
   this.curDir = "D";
   this.lastShot = 0;
   //anchor
+  this.game.physics.p2.enable(this, false);
+  //this.body.allowRotation = false;
   this.anchor.setTo(0.5, 0.5);
   
   this.animations.add('stillLeft', [169, 170, 171, 172, 173, 174], 6);
@@ -63,44 +65,49 @@ Warrior.prototype.addArrow = function(){
 	this.fireArrows.add(new FireArrow(this.game, this.x, this.y, 0, this.curDir));
 }
 
-Warrior.prototype.move = function(direction){
-	if(direction == "L"){
-		this.animations.play('walkLeft', 8, false);
-		this.x -= 4;
-	}
-	else if(direction == "R"){
-		this.animations.play('walkRight', 8, true);
-		this.x += 4;
-	}
-	else if(direction == "U"){
-		this.animations.play('walkUp', 8, true);
-		this.y -= 4;		
-	}
-	else if(direction == "D"){
-		this.animations.play('walkDown', 8, true);
-		this.y += 4;
-	}
-	else if(direction == "UL"){
-		this.animations.play('walkUp', 8, true);
-		this.y -= 2;
-		this.x -= 2;
-	}
-	else if(direction == "UR"){
-		this.animations.play('walkUp', 8, true);
-		this.y -= 2;
-		this.x += 2;
-	}
-	else if(direction == "DL"){
-		this.animations.play('walkDown', 8, true);
-		this.y += 2;
-		this.x -= 2;
+Warrior.prototype.move = function(direction, still){
+	if(still{
+		this.body.velocity.x = 0;
+		this.body.velocity.y = 0;
 	}
 	else{
-		this.animations.play('walkDown', 8, true);
-		this.y += 2;
-		this.x += 2;
+		if(direction == "L"){
+			this.animations.play('walkLeft', 8, false);
+			this.body.velocity.x = -400;
+		}
+		else if(direction == "R"){
+			this.animations.play('walkRight', 8, true);
+			this.body.velocity.x = 400;
+		}
+		else if(direction == "U"){
+			this.animations.play('walkUp', 8, true);
+			this.body.velocity.y = -400;
+		}
+		else if(direction == "D"){
+			this.animations.play('walkDown', 8, true);
+			this.body.velocity.y = 400;
+		}
+		else if(direction == "UL"){
+			this.animations.play('walkUp', 8, true);
+			this.body.velocity.y = -200;
+			this.body.velocity.x = -200;
+		}
+		else if(direction == "UR"){
+			this.animations.play('walkUp', 8, true);
+			this.body.velocity.y = -200;
+			this.body.velocity.x = 200;
+		}
+		else if(direction == "DL"){
+			this.animations.play('walkDown', 8, true);
+			this.body.velocity.y = 200;
+			this.body.velocity.x = -200;
+		}
+		else{
+			this.animations.play('walkDown', 8, true);
+			this.body.velocity.y = 200;
+			this.body.velocity.x = 200;
+		}		
 	}
-	this.curDir = direction;
 }
 
 

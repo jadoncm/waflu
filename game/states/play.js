@@ -124,67 +124,73 @@ Play.prototype = {
     },
 
     update: function() {
-	var mousePos = this.game.input.mousePointer.position;
-	mousePos.x = Math.floor(mousePos.x);
-	mousePos.y = Math.floor(mousePos.y);
-	var mouseDown = this.game.input.mousePointer.isDown;
+		var mousePos = this.game.input.mousePointer.position;
+		mousePos.x = Math.floor(mousePos.x);
+		mousePos.y = Math.floor(mousePos.y);
+		var mouseDown = this.game.input.mousePointer.isDown;
 
-        this.checkInsidePlay();
-        this.checkInsideSquare();
+	        this.checkInsidePlay();
+	        this.checkInsideSquare();
 
-        // select particles
-        if (mouseDown && this.selecting) {
-	    var bodies = this.mouseHits();
-	    if (bodies.length && !bodies[0].selected) {
-                this.painter.select(bodies[0].parent.sprite);
-	    }
-	}
+	        // select particles
+	        if (mouseDown && this.selecting) {
+		    var bodies = this.mouseHits();
+		    if (bodies.length && !bodies[0].selected) {
+	                this.painter.select(bodies[0].parent.sprite);
+		    }
+		}
 
-        // drawing particles
-	if (mouseDown && !this.insideSquare && !this.selecting && this.insidePlay) {
-            this.painter.add(mousePos.x, mousePos.y);
-	}
+	        // drawing particles
+		if (mouseDown && !this.insideSquare && !this.selecting && this.insidePlay) {
+	            this.painter.add(mousePos.x, mousePos.y);
+		}
 
-        // set color
-        if (mouseDown && this.ui.selectingColor()) {
-            this.painter.setColor(this.ui.getColor());
-        }
+	        // set color
+	        if (mouseDown && this.ui.selectingColor()) {
+	            this.painter.setColor(this.ui.getColor());
+	        }
 
-	this.ui.update();
-        this.painter.update();
-        this.ui.updateInfo(this.painter.pp, this.painter.color);
+		this.ui.update();
+	        this.painter.update();
+	        this.ui.updateInfo(this.painter.pp, this.painter.color);
 
 
-	if (this.a.isDown){
-	    this.warrior.move("L");
-	}
-	if (this.d.isDown){
-	    this.warrior.move("R");
-	}
-	if (this.w.isDown){
-	    if(this.a.isDown){
-		this.warrior.move("UL");
-	    }
-	    else if(this.d.isDown){
-		this.warrior.move("UR");
-	    }
-	    else{
-		this.warrior.move("U");
-	    }
-	}
-	if (this.s.isDown){
-	    if(this.a.isDown){
-		this.warrior.move("DL");
-	    }
-	    else if(this.d.isDown){
-		this.warrior.move("DR");
-	    }
-	    else{
-		this.warrior.move("D");
-	    }
-	}
-	if(this.space.isDown){
-	    this.warrior.addArrow();									}
+		if (this.a.isDown){
+		    this.warrior.move("L", false);
+		}
+		if (this.d.isDown){
+		    this.warrior.move("R", false);
+		}
+		if (this.w.isDown){
+		    if(this.a.isDown){
+			this.warrior.move("UL", false);
+		    }
+		    else if(this.d.isDown){
+			this.warrior.move("UR", false);
+		    }
+		    else{
+			this.warrior.move("U", false);
+		    }
+		}
+		if (this.s.isDown){
+		    if(this.a.isDown){
+			this.warrior.move("DL", false);
+		    }
+		    else if(this.d.isDown){
+			this.warrior.move("DR", false);
+		    }
+		    else{
+			this.warrior.move("D", false);
+		    }
+		}
+
+		if(this.space.isDown){
+		    this.warrior.addArrow();									
+		}
+
+		if(!this.a.isDown && !this.d.isDown && !this.w.isDown !this.s.isDown){
+			this.warrior.move(this.warrior.curDir, false);
+		}
     }
 };
 
