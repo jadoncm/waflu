@@ -12,6 +12,8 @@ Play.prototype = {
 
 	this.ui = new UIGroup(this.game);
 	this.painter = new Painter(this.game, null, this.paintMaterial, this.fluidCG, this.warriorCG, this.arrowCG);
+
+        this.initBox();
     },
 
     setConstants: function() {
@@ -56,6 +58,14 @@ Play.prototype = {
 
         this.insideSquare = false;
         this.insidePlay = true;
+    },
+
+    initBox: function() {
+        this.boxGraphics = this.game.add.graphics();
+        this.boxGraphics.lineStyle(8, 0xFFFFFF);
+        this.boxGraphics.drawRect(this.game.PAINT_BORDER, this.game.PAINT_BORDER,
+                                  this.game.PLAY_WIDTH - 2*this.game.PAINT_BORDER,
+                                  this.game.PLAY_HEIGHT - 2*this.game.PAINT_BORDER);
     },
 
     mouseHits: function() {
@@ -108,6 +118,7 @@ Play.prototype = {
 
 	this.ui.update();
         this.painter.update();
+        this.ui.updateInfo(this.painter.pp);
 
         this.checkInsidePlay();
         this.checkInsideSquare();
