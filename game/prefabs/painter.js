@@ -49,39 +49,44 @@ Painter.prototype.update = function() {
     this.graphics.beginFill(0x000000, 1);
     this.graphics.drawRect(0, 0, this.game.PLAY_WIDTH, this.game.PLAY_HEIGHT);
     this.particles.forEach(function(particle) {
-	if (particle.inBox() && particle.body.velocity.x < 3 && particle.body.velocity.y < 3 && !particle.taggedToKill) {
-	    particle.taggedToKill = true;
-	    particle.killTimer = this.game.time.create();
-	    particle.killTimer.add(this.game.KILL_TIME, function () {
-            particle.deleteSprings();
-    		particle.destroy(true);
-	    }, this);
-	    particle.killTimer.start();
-	    return;
-	}
+    	if (particle.inBox() && particle.body.velocity.x < 3 && particle.body.velocity.y < 3 && !particle.taggedToKill) {
+    	    particle.taggedToKill = true;
+    	    particle.killTimer = this.game.time.create();
+    	    particle.killTimer.add(this.game.KILL_TIME, function () {
+                particle.delete();
+    	    }, this);
+    	    particle.killTimer.start();
+    	    return;
+    	}
 
-	this.graphics.beginFill(
-	    Phaser.Color.getColor(particle.color.r, particle.color.g, particle.color.b),
-	    1
-	);
-	this.graphics.drawEllipse(particle.x, particle.y, this.game.PARTICLE_SIZE, this.game.PARTICLE_SIZE);
+    	this.graphics.beginFill(Phaser.Color.getColor(
+            particle.color.r, particle.color.g, particle.color.b
+        ), 1);
+    	this.graphics.drawEllipse(
+            particle.x, particle.y,
+            this.game.PARTICLE_SIZE, this.game.PARTICLE_SIZE
+        );
 
-	var sprite;
-	var maxDist = 32;
-	for (var i = 0; i < particle.connections.length; i++) {
-	    sprite = particle.connections[i].sprite;
-	    if (Math.sqrt(Math.pow(sprite.x - particle.x, 2) + Math.pow(sprite.x - particle.x, 2)) > maxDist) {
-		this.game.physics.p2.removeSpring(particle.connections[i].spring);
-		particle.connections.splice(i, 1);
-	    }
-	}
+    	var sprite;
+    	var maxDist = 32;
+        for (var spriteid in particle.connections) {
+            var sprite = particle.particles[spriteid];
+            if (typeof sprite == 'undefined') continue;
+
+            var dist = Math.sqrt(Math.pow(sprite.x - particle.x, 2) + Math.pow(sprite.x - particle.x, 2));
+            if (dist > maxDist) {
+                particle.deleteSpring(sprite.id);
+                sprite.deleteSpring(particle.id);
+                console.log('out of dist');
+            }
+        }
     }, this, true);
 
     this.selectedGraphics.clear();
     this.selectedGraphics.lineStyle(2, 0xFFFFFF);
     for (var i = 0; i < this.selectedParticles.length; i++) {
-	var particle = this.selectedParticles[i];
-	this.selectedGraphics.arc(particle.x, particle.y, this.game.PARTICLE_SIZE, 0, 2*Math.PI);
+    	var particle = this.selectedParticles[i];
+    	this.selectedGraphics.arc(particle.x, particle.y, this.game.PARTICLE_SIZE, 0, 2*Math.PI);
     }
 }
 

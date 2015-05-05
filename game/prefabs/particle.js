@@ -1,5 +1,7 @@
 'use strict';
 
+var particles = {};
+
 var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arrowCG) {
     Phaser.Sprite.call(this, game, x, y);
 
@@ -8,6 +10,8 @@ var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arr
     this.color = color;
 
     this.id = id;
+    particles[id] = this;
+    this.particles = particles;
     this.body.setMaterial(material);
     this.body.setCircle(this.game.PARTICLE_SIZE);
     this.body.setCollisionGroup(fluidCG);
@@ -69,21 +73,27 @@ Particle.prototype.hitArrow = function(particleBody, arrowBody) {
 }
 
 Particle.prototype.collideParticle = function(body1, body2) {
-    if (!(body2.sprite in this.connections))
-	   this.connections[body2.sprite] = this.game.physics.p2.createSpring(body1, body2, 16, 8, 0.3);
+    if (!(body2.sprite.id in this.connections)) {
+	   this.connections[body2.sprite.id] = this.game.physics.p2.createSpring(body1, body2, 16, 8, 0.3);
+    }
 }
 
-Particle.prototype.deleteSprings = function() {
-    for (var sprite in this.connections) {
-        var spring = this.connections[sprite];
-        this.game.physics.p2.removeSpring(spring);
-        if (typeof sprite.connections !== 'undefined' && 
-            this in sprite.connections) {
-            var spring = sprite.connections[this];
-            this.game.physics.p2.removeSpring(spring);
-            delete sprite.connections[this];
+Particle.prototype.deleteSpring = function(spriteid) {
+    this.game.physics.p2.removeSpring(this.connections[spriteid]);
+    delete this.connections[spriteid];
+}
+Particle.prototype.delete = function() {
+    for (var spriteid in this.connections) {
+        this.deleteSpring(spriteid);
+        if (spriteid in particles) {
+            var sprite = particles[spriteid];
+            if (this.id in sprite.connections) {
+                sprite.deleteSpring(this.id);
+            }
         }
     }
+    delete particles[this.id];
+    this.destroy(true);
 }
 
 Particle.prototype.loseHealth = function(damage) {
