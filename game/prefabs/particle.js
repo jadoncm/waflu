@@ -1,5 +1,7 @@
 'use strict';
 
+var particles = {};
+
 var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arrowCG) {
     Phaser.Sprite.call(this, game, x, y);
 
@@ -9,6 +11,8 @@ var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arr
     Phaser.Color.RGBtoHSV(this.color.r, this.color.g, this.color.b, this.color);
 
     this.id = id;
+    particles[id] = this;
+    this.particles = particles;
     this.body.setMaterial(material);
     this.body.setCircle(this.game.PARTICLE_SIZE);
     this.body.setCollisionGroup(fluidCG);
@@ -19,7 +23,7 @@ var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arr
     this.selected = false;
     this.taggedToKill = false;
 
-    this.connections = [];
+    this.connections = {};
 
     this.health = this.color.s*this.game.STAT_MAG;
     this.attack = this.color.h*this.game.STAT_MAG;
@@ -70,34 +74,27 @@ Particle.prototype.hitArrow = function(particleBody, arrowBody) {
 }
 
 Particle.prototype.collideParticle = function(body1, body2) {
-    if (this.findSpring(body2.sprite) > -1) {
-	    this.connections.push({
-            sprite: body2.sprite,
-            spring: this.game.physics.p2.createSpring(body1, body2, 16, 8, 0.3)
-        });
+    if (!(body2.sprite.id in this.connections)) {
+	   this.connections[body2.sprite.id] = this.game.physics.p2.createSpring(body1, body2, 16, 8, 0.3);
     }
 }
 
-Particle.prototype.findSpring = function(sprite) {
-    for (var i = 0; i < this.connections; i ++) {
-        if (this.connections[i].sprite == body2.sprite)
-            return i;
-    }
-    return -1;
+Particle.prototype.deleteSpring = function(spriteid) {
+    this.game.physics.p2.removeSpring(this.connections[spriteid]);
+    delete this.connections[spriteid];
 }
-Particle.prototype.deleteSpring = function(sprite) {
-    var i = this.findSpring(sprite);
-    this.game.physics.p2.removeSpring(this.connections[i].spring);
-    this.connections.splice(i, 1);
-}
-Particle.prototype.deleteSprings = function() {
-    for (var i = 0; i < this.connections; i ++) {
-        var sprite = this.connections[i].sprite;
-        this.deleteSpring(sprite);
-        if (typeof sprite.connections !== 'undefined' && sprite.findSpring(this) > -1) {
-            sprite.deleteSpring(this);
+Particle.prototype.delete = function() {
+    for (var spriteid in this.connections) {
+        this.deleteSpring(spriteid);
+        if (spriteid in particles) {
+            var sprite = particles[spriteid];
+            if (this.id in sprite.connections) {
+                sprite.deleteSpring(this.id);
+            }
         }
     }
+    delete particles[this.id];
+    this.destroy(true);
 }
 
 Particle.prototype.loseHealth = function(damage) {

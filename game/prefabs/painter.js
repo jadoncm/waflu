@@ -42,8 +42,7 @@ Painter.prototype.update = function() {
     	    particle.taggedToKill = true;
     	    particle.killTimer = this.game.time.create();
     	    particle.killTimer.add(this.game.KILL_TIME, function () {
-                particle.deleteSprings();
-        		particle.destroy(true);
+                particle.delete();
     	    }, this);
     	    particle.killTimer.start();
     	    return;
@@ -59,13 +58,14 @@ Painter.prototype.update = function() {
 
     	var sprite;
     	var maxDist = 32;
-        for (var sprite in particle.connections) {
-            console.dir(sprite);
-            console.log(particle.connections);
+        for (var spriteid in particle.connections) {
+            var sprite = particle.particles[spriteid];
+            if (typeof sprite == 'undefined') continue;
+
             var dist = Math.sqrt(Math.pow(sprite.x - particle.x, 2) + Math.pow(sprite.x - particle.x, 2));
             if (dist > maxDist) {
-                particle.deleteSpring(sprite);
-                sprite.deleteSpring(particle);
+                particle.deleteSpring(sprite.id);
+                sprite.deleteSpring(particle.id);
                 console.log('out of dist');
             }
         }
