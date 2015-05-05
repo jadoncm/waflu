@@ -5,6 +5,7 @@ var Particle = require('../prefabs/particle');
 var Painter = function(game, parent, material, fluidCG, warriorCG, arrowCG) {
     Phaser.Group.call(this, game, parent);
 
+    this.counter = 0;
     this.pp = 100*this.game.STAT_MAG;
     this.color = Phaser.Color.createColor(255, 255, 255);
     this.fluidCG = fluidCG;
@@ -115,7 +116,7 @@ Painter.prototype.velocityF = function(xDiff, yDiff) {
     if (norm < 3) {
     	return {x: 0, y: 0};
     } else {
-    	return {x: xDiff / norm * Math.min(norm, this.game.MAX_VELOCITY), y: yDiff / norm * Math.min(norm, this.game.MAX_VELOCITY)}
+    	return {x: xDiff / norm * Math.min(norm, this.game.MAX_VELOCITY) * 2, y: yDiff / norm * Math.min(norm, this.game.MAX_VELOCITY) * 2}
     }
 };
 
@@ -137,10 +138,11 @@ Painter.prototype.add = function(x, y, color) {
     if (this.pp >= cost) {
         var particle =
             new Particle(this.game, x, y,
-                         this.particles.total + 1, JSON.parse(JSON.stringify(this.color)),
+                         this.counter + 1, JSON.parse(JSON.stringify(this.color)),
                          this.paintMaterial, this.fluidCG, this.warriorCG, this.arrowCG)
         this.pp -= particle.attack + particle.health;
         this.particles.add(particle);
+        this.counter += 1;
     }
 }
 

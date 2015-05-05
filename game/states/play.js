@@ -23,7 +23,7 @@ Play.prototype = {
 
     setConstants: function() {
 	this.game.PARTICLE_SIZE = 8;
-	this.game.MAX_VELOCITY = 40;
+	this.game.MAX_VELOCITY = 100;
 	this.game.STAT_MAG = 100;
 	this.game.PLAY_WIDTH = 800;
 	this.game.PLAY_HEIGHT = 800;
@@ -161,6 +161,11 @@ Play.prototype = {
     },
 
     update: function() {
+
+    if (this.warrior.health <= 0) {
+        this.game.state.start('gameover')
+    }
+
 	var mousePos = this.game.input.mousePointer.position;
 	mousePos.x = Math.floor(mousePos.x);
 	mousePos.y = Math.floor(mousePos.y);

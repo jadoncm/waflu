@@ -18,7 +18,7 @@ var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arr
     this.body.collides(fluidCG, this.collideParticle, this);
     this.body.collides(warriorCG, this.collideWarrior, this);
     this.body.collides(arrowCG, this.collideArrow, this);
-    this.body.damping = 0.5;
+    this.body.damping = 0.35;
     this.selected = false;
     this.taggedToKill = false;
 
@@ -29,12 +29,15 @@ var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arr
 
     this.body.damping = 1;
     this.killable = false;
-    var timer = this.game.time.create();
-    timer.add(200, function () {
-        this.body.damping = 0.5;
-        this.killable = true;  // to get rid of a bug where a particle was killed before the timer went off
+    this.dampingTimer = this.game.time.create();
+    this.dampingTimer.add(200, function () {
+        if (this && this.body && this.body.damping) {
+            this.body.damping = 0.35;
+            console.log(this.body.damping);
+            this.killable = true;  // to get rid of a bug where a particle was killed before the timer went off
+        }
     }, this);
-    timer.start();
+    this.dampingTimer.start();
 };
 
 Particle.prototype = Object.create(Phaser.Sprite.prototype);
@@ -58,13 +61,13 @@ Particle.prototype.updateColor = function() {
     this.color.s = this.health/this.game.STAT_MAG;
     this.color.h = this.attack/this.game.STAT_MAG;
     Phaser.Color.HSVtoRGB(this.color.h, this.color.s, this.color.v, this.color);
-    console.log(this.color);
 }
 
 Particle.prototype.collideWarrior = function(particleBody, warriorBody) {
     var particle = particleBody.sprite;
     var warrior = warriorBody.sprite;
     warrior.loseHealth(particle.attack);
+    particle.selected = false;
     particle.delete();
 }
 
