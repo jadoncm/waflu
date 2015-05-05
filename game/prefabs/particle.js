@@ -79,7 +79,8 @@ Particle.prototype.collideArrow = function(particleBody, arrowBody) {
 
 Particle.prototype.collideParticle = function(body1, body2) {
     if (body1.sprite && body2.sprite) {
-        if (!(body2.sprite.id in this.connections)) {
+        if (!(body2.sprite.id in this.connections) && 
+            !(this.id in body2.sprite.connections)) {
     	   this.connections[body2.sprite.id] = this.game.physics.p2.createSpring(body1, body2, 16, 8, 0.3);
         }
     }
