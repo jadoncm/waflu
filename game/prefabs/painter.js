@@ -116,7 +116,7 @@ Painter.prototype.velocityF = function(xDiff, yDiff) {
     if (norm < 3) {
     	return {x: 0, y: 0};
     } else {
-    	return {x: xDiff / norm * Math.min(norm, this.game.MAX_VELOCITY) * 2, y: yDiff / norm * Math.min(norm, this.game.MAX_VELOCITY) * 2}
+    	return {x: xDiff / norm * Math.min(norm, this.game.MAX_VELOCITY) * 4, y: yDiff / norm * Math.min(norm, this.game.MAX_VELOCITY) * 4}
     }
 };
 
