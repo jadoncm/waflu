@@ -5,7 +5,8 @@ var Warrior = function(game, x, y, fluidCG, warriorCG, arrowCG, wallCG) {
     Phaser.Sprite.call(this, game, x, y, 'warrior');
 
     this.game.WARRIOR_VELOCITY = 300;
-    this.health = 100000;
+    this.game.WARRIOR_HEALTH = 10000;
+    this.health = this.game.WARRIOR_HEALTH;
     this.curDir = "D";
     this.lastShot = 0;
     //anchor
@@ -14,7 +15,7 @@ var Warrior = function(game, x, y, fluidCG, warriorCG, arrowCG, wallCG) {
     this.fluidCG = fluidCG;
     this.arrowCG = arrowCG;
     this.wallCG = wallCG;
-    this.game.physics.p2.enable(this, true);
+    this.game.physics.p2.enable(this, false);
     this.body.setCircle(20);
     this.body.allowRotation = false;
     this.body.fixedRotation = true;
@@ -38,6 +39,13 @@ var Warrior = function(game, x, y, fluidCG, warriorCG, arrowCG, wallCG) {
     this.animations.play('stillDown', 4, true);
 
     this.fireArrows = this.game.add.group();
+    
+    this.score = 0;
+    var timer = this.game.time.create();
+    timer.loop(1000, function() {
+        this.score++;
+    }, this);
+    timer.start();
 };
 
 Warrior.prototype = Object.create(Phaser.Sprite.prototype);

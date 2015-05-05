@@ -29,7 +29,7 @@ var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arr
 
     this.body.damping = 1;
     var timer = this.game.time.create();
-    timer.add(200, function () {
+    timer.add(200, function() {
         this.body.damping = 0.5;
     }, this);
     timer.start();
@@ -56,7 +56,6 @@ Particle.prototype.updateColor = function() {
     this.color.s = this.health/this.game.STAT_MAG;
     this.color.h = this.attack/this.game.STAT_MAG;
     Phaser.Color.HSVtoRGB(this.color.h, this.color.s, this.color.v, this.color);
-    console.log(this.color);
 }
 
 Particle.prototype.collideWarrior = function(particleBody, warriorBody) {
@@ -103,7 +102,6 @@ Particle.prototype.delete = function() {
 
 Particle.prototype.loseHealth = function(damage) {
     this.health -= damage;
-    console.log(this.health);
     if (this.health <= 0)
 	this.delete();
     else
