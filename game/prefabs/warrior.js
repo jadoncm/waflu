@@ -50,6 +50,9 @@ Warrior.prototype.update = function() {
 
 Warrior.prototype.loseHealth = function(amount) {
     this.health -= amount;
+    if (this.health <= 0) {
+        this.game.state.start('gameover');
+    }
 }
 
 Warrior.prototype.stop = function() {

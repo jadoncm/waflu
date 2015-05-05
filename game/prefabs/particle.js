@@ -33,7 +33,6 @@ var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arr
     this.dampingTimer.add(200, function () {
         if (this && this.body && this.body.damping) {
             this.body.damping = 0.35;
-            console.log(this.body.damping);
             this.killable = true;  // to get rid of a bug where a particle was killed before the timer went off
         }
     }, this);

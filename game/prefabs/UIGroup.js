@@ -127,10 +127,13 @@ UIGroup.prototype.updateInfo = function(pp, color, hp) {
 
     this.info.warrior.graphics.clear();
     this.info.warrior.graphics.beginFill(0xC7F464);
-    this.info.warrior.graphics.drawRoundedRect(50, 0, (this.game.UI_WIDTH - 100) * hp/this.game.WARRIOR_HEALTH, 40, 8);
+    // console.log((this.game.UI_WIDTH - 100) * Math.max(hp, 0) / (this.game.WARRIOR_HEALTH));
+    if (hp > 0) {
+        this.info.warrior.graphics.drawRect(50, 0, (this.game.UI_WIDTH - 100) * hp / (this.game.WARRIOR_HEALTH), 40);
+    }
     this.info.warrior.graphics.endFill();
     this.info.warrior.graphics.lineStyle(2, 0x000000);
-    this.info.warrior.graphics.drawRoundedRect(50, 0, this.game.UI_WIDTH - 100, 40, 8);
+    this.info.warrior.graphics.drawRect(50, 0, this.game.UI_WIDTH - 100, 40);
 }
 
 module.exports = UIGroup;

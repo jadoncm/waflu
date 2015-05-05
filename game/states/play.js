@@ -23,6 +23,7 @@ Play.prototype = {
         this.initWalls();
 
 	this.ui = new UIGroup(this.game);
+    this.started = this.game.time.time;
     },
 
     setConstants: function() {
@@ -154,10 +155,6 @@ Play.prototype = {
     },
 
     update: function() {
-
-    if (this.warrior.health <= 0) {
-        this.game.state.start('gameover')
-    }
 
 	var mousePos = this.game.input.mousePointer.position;
 	mousePos.x = Math.floor(mousePos.x);
