@@ -29,7 +29,7 @@ var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arr
 
     this.body.damping = 1;
     var timer = this.game.time.create();
-    timer.add(200, function () {
+    timer.add(200, function() {
         this.body.damping = 0.5;
     }, this);
     timer.start();
