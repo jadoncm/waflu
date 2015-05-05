@@ -74,6 +74,19 @@ Particle.prototype.collideParticle = function(body1, body2) {
 	   this.connections[body2.sprite] = this.game.physics.p2.createSpring(body1, body2, 16, 8, 0.3);
 }
 
+Particle.prototype.deleteSprings = function() {
+    for (var sprite in this.connections) {
+        var spring = this.connections[sprite];
+        this.game.physics.p2.removeSpring(spring);
+        if (typeof sprite.connections !== 'undefined' && 
+            this in sprite.connections) {
+            var spring = sprite.connections[this];
+            this.game.physics.p2.removeSpring(spring);
+            delete sprite.connections[this];
+        }
+    }
+}
+
 Particle.prototype.loseHealth = function(damage) {
     this.health -= damage;
     if (this.health <= 0)
