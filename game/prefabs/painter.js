@@ -77,7 +77,6 @@ Painter.prototype.update = function() {
             if (dist > maxDist) {
                 particle.deleteSpring(sprite.id);
                 sprite.deleteSpring(particle.id);
-                console.log('out of dist');
             }
         }
     }, this, true);
@@ -117,7 +116,7 @@ Painter.prototype.add = function(x, y, color) {
     if (this.pp >= cost) {
         var particle =
             new Particle(this.game, x, y,
-                         this.particles.total + 1, this.color,
+                         this.particles.total + 1, JSON.parse(JSON.stringify(this.color)),
                          this.paintMaterial, this.fluidCG, this.warriorCG, this.arrowCG)
         this.pp -= particle.attack + particle.health;
         this.particles.add(particle);

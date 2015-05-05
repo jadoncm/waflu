@@ -14,7 +14,7 @@ Play.prototype = {
 
 	this.ui = new UIGroup(this.game);
 	this.painter = new Painter(this.game, null, this.paintMaterial, this.fluidCG, this.warriorCG, this.arrowCG);
-	this.warrior = new Warrior(this.game, this.game.width / 2, this.game.height / 2, 0);
+	this.warrior = new Warrior(this.game, this.game.PLAY_WIDTH / 2, this.game.PLAY_HEIGHT / 2, this.fluidCG, this.warriorCG, this.arrowCG);
 	this.game.add.existing(this.warrior);
 
         this.initBox();
