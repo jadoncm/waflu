@@ -220,9 +220,12 @@ Play.prototype = {
 	    }
 	}
 
-	if(this.space.isDown){
+	if (this.space.isDown){
 	    this.warrior.addArrow();								
 	}
+
+        if (!(this.w.isDown || this.a.isDown || this.s.isDown || this.d.isDown))
+            this.warrior.stop();
     }
 };
 

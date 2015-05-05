@@ -3,6 +3,8 @@ var FireArrow = require('../prefabs/fireArrow')
 
 var Warrior = function(game, x, y, fluidCG, warriorCG, arrowCG, wallCG) {
     Phaser.Sprite.call(this, game, x, y, 'warrior');
+
+    this.game.WARRIOR_VELOCITY = 200;
     this.health = 100000;
     this.curDir = "D";
     this.lastShot = 0;
@@ -63,59 +65,73 @@ Warrior.prototype.addArrow = function(){
 	this.lastShot = this.game.time.time;
     }
 
-    if(this.curDir == "U" || this.curDir == "UL" || this.curDir == "UR"){
-	this.animations.play('shootUp', 30, false);
-    }
-    else if(this.curDir == "L"){
-	this.animations.play('shootLeft', 30, false);	
-    }
-    else if(this.curDir == "R"){
-	this.animations.play('shootRight', 30, false);	
-    }
-    else { //shooting down or angled down
-	this.animations.play('shootDown', 30, false);
-    }
+    // if(this.curDir == "U" || this.curDir == "UL" || this.curDir == "UR"){
+    //     this.animations.play('shootUp', 30, false);
+    // }
+    // else if(this.curDir == "L"){
+    //     this.animations.play('shootLeft', 30, false);	
+    // }
+    // else if(this.curDir == "R"){
+    //     this.animations.play('shootRight', 30, false);	
+    // }
+    // else { //shooting down or angled down
+    //     this.animations.play('shootDown', 30, false);
+    // }
 
     this.fireArrows.add(new FireArrow(this.game, this.x, this.y, this.curDir, this.fluidCG, this.arrowCG, this.wallCG));
 }
 
 Warrior.prototype.move = function(direction) {
-    if(direction == "L"){
-	this.animations.play('walkLeft', 8, false);
-	this.body.velocity.x = -400;
+    this.curDir = direction;
+    switch(direction) {
+    case "L":
+        this.body.velocity.x = -1 * this.game.WARRIOR_VELOCITY;
+        break;
+    case "R":
+        this.body.velocity.x = this.game.WARRIOR_VELOCITY;
+        break;
+    case "U":
+        this.body.velocity.y = -1 * this.game.WARRIOR_VELOCITY;
+        break;
+    case "D":
+        this.body.velocity.y = this.game.WARRIOR_VELOCITY;
+        break;
+    case "UL":
+        this.body.velocity.x = -1 * this.game.WARRIOR_VELOCITY / Math.sqrt(2);
+        this.body.velocity.y = -1 * this.game.WARRIOR_VELOCITY / Math.sqrt(2);
+        break;
+    case "UR":
+        this.body.velocity.x = this.game.WARRIOR_VELOCITY / Math.sqrt(2);
+        this.body.velocity.y = -1 * this.game.WARRIOR_VELOCITY / Math.sqrt(2);
+        break;
+    case "DL":
+        this.body.velocity.x = -1 * this.game.WARRIOR_VELOCITY / Math.sqrt(2);
+        this.body.velocity.y = this.game.WARRIOR_VELOCITY / Math.sqrt(2);
+        break;
+    case "DR":
+        this.body.velocity.x = this.game.WARRIOR_VELOCITY / Math.sqrt(2);
+        this.body.velocity.y = this.game.WARRIOR_VELOCITY / Math.sqrt(2);
+        break;
     }
-    else if(direction == "R"){
-	this.animations.play('walkRight', 8, true);
-	this.body.velocity.x = 400;
+
+    switch(direction) {
+    case "L":
+        this.animations.play("walkLeft", 24, true);
+        break;
+    case "R":
+        this.animations.play("walkRight", 24, true);
+        break;
+    case "U":
+    case "UL":
+    case "UR":
+        this.animations.play("walkUp", 24, true);
+        break;
+    case "D":
+    case "DL":
+    case "DR":
+        this.animations.play("walkDown", 24, true);
+        break;
     }
-    else if(direction == "U"){
-	this.animations.play('walkUp', 8, true);
-	this.body.velocity.y = -400;
-    }
-    else if(direction == "D"){
-	this.animations.play('walkDown', 8, true);
-	this.body.velocity.y = 400;
-    }
-    else if(direction == "UL"){
-	this.animations.play('walkUp', 8, true);
-	this.body.velocity.y = -200;
-	this.body.velocity.x = -200;
-    }
-    else if(direction == "UR"){
-	this.animations.play('walkUp', 8, true);
-	this.body.velocity.y = -200;
-	this.body.velocity.x = 200;
-    }
-    else if(direction == "DL"){
-	this.animations.play('walkDown', 8, true);
-	this.body.velocity.y = 200;
-	this.body.velocity.x = -200;
-    }
-    else {
-	this.animations.play('walkDown', 8, true);
-	this.body.velocity.y = 200;
-	this.body.velocity.x = 200;
-    }		
 }
 
 
