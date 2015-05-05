@@ -56,26 +56,31 @@ Particle.prototype.updateColor = function() {
     this.color.s = this.health/this.game.STAT_MAG;
     this.color.h = this.attack/this.game.STAT_MAG;
     Phaser.Color.HSVtoRGB(this.color.h, this.color.s, this.color.v, this.color);
+    console.log(this.color);
 }
 
-Particle.prototype.hitWarrior = function(particleBody, warriorBody) {
+Particle.prototype.collideWarrior = function(particleBody, warriorBody) {
     var particle = particleBody.sprite;
     var warrior = warriorBody.sprite;
     warrior.loseHealth(particle.attack);
-    particle.destroy();
+    particle.delete();
 }
 
-Particle.prototype.hitArrow = function(particleBody, arrowBody) {
+Particle.prototype.collideArrow = function(particleBody, arrowBody) {
     var particle = particleBody.sprite;
     var arrow = arrowBody.sprite;
-    particle.loseHealth(arrow.attack);
-    arrow.destroy();
+    if (arrow) {
+        particle.loseHealth(arrow.attack);
+        arrow.destroy();
+    }
 }
 
 Particle.prototype.collideParticle = function(body1, body2) {
-    if (!(body2.sprite.id in this.connections) && 
-        !(this.id in body2.sprite.connections)) {
-	   this.connections[body2.sprite.id] = this.game.physics.p2.createSpring(body1, body2, 16, 8, 0.3);
+    if (body1.sprite && body2.sprite) {
+        if (!(body2.sprite.id in this.connections) && 
+            !(this.id in body2.sprite.connections)) {
+    	   this.connections[body2.sprite.id] = this.game.physics.p2.createSpring(body1, body2, 16, 8, 0.3);
+        }
     }
 }
 
@@ -99,8 +104,9 @@ Particle.prototype.delete = function() {
 
 Particle.prototype.loseHealth = function(damage) {
     this.health -= damage;
+    console.log(this.health);
     if (this.health <= 0)
-	this.destroy();
+	this.delete();
     else
 	this.updateColor();
 }
