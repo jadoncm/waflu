@@ -28,9 +28,11 @@ var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arr
     this.attack = Math.floor(this.color.h*this.game.STAT_MAG);
 
     this.body.damping = 1;
+    this.killable = false;
     var timer = this.game.time.create();
     timer.add(200, function () {
         this.body.damping = 0.5;
+        this.killable = true;  // to get rid of a bug where a particle was killed before the timer went off
     }, this);
     timer.start();
 };
