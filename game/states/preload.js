@@ -19,8 +19,9 @@ Preload.prototype = {
 	this.load.script('threshold', 'assets/threshold.js');
 
 	this.load.image('colors', 'assets/colors.png');
-
-	this.load.image('startButton', 'assets/button_blank_gray_01.png');  
+	this.load.image('startButton', 'assets/button_blank_gray_01.png');
+	this.load.image('fireArrow', 'assets/fire-arrow.png');
+	this.load.spritesheet('warrior', 'assets/warrior.png', 64, 64, 273);
 
 	this.load.bitmapFont('minecraftia', 'assets/minecraftia.png', 'assets/minecraftia.fnt');
     },

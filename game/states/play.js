@@ -2,6 +2,7 @@
 
 var Painter = require('../prefabs/painter');
 var UIGroup = require('../prefabs/UIGroup');
+var Warrior = require('../prefabs/warrior');
 
 function Play() {}
 Play.prototype = {
@@ -9,9 +10,12 @@ Play.prototype = {
 	this.setConstants();
 	this.initPhysics();
 	this.initMouse();
+        this.initKey();
 
 	this.ui = new UIGroup(this.game);
 	this.painter = new Painter(this.game, null, this.paintMaterial, this.fluidCG, this.warriorCG, this.arrowCG);
+	this.warrior = new Warrior(this.game, this.game.width / 2, this.game.height / 2, 0);
+	this.game.add.existing(this.warrior);
 
         this.initBox();
     },
@@ -58,6 +62,15 @@ Play.prototype = {
 
         this.insideSquare = false;
         this.insidePlay = true;
+    },
+
+    initKey: function() {
+	this.w = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
+	this.s = this.game.input.keyboard.addKey(Phaser.Keyboard.S);
+	this.a = this.game.input.keyboard.addKey(Phaser.Keyboard.A);
+	this.d = this.game.input.keyboard.addKey(Phaser.Keyboard.D);
+	this.shift = this.game.input.keyboard.addKey(Phaser.Keyboard.SHIFT);
+	this.space = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     },
 
     initBox: function() {
@@ -140,6 +153,38 @@ Play.prototype = {
 	this.ui.update();
         this.painter.update();
         this.ui.updateInfo(this.painter.pp, this.painter.color);
+
+
+	if (this.a.isDown){
+	    this.warrior.move("L");
+	}
+	if (this.d.isDown){
+	    this.warrior.move("R");
+	}
+	if (this.w.isDown){
+	    if(this.a.isDown){
+		this.warrior.move("UL");
+	    }
+	    else if(this.d.isDown){
+		this.warrior.move("UR");
+	    }
+	    else{
+		this.warrior.move("U");
+	    }
+	}
+	if (this.s.isDown){
+	    if(this.a.isDown){
+		this.warrior.move("DL");
+	    }
+	    else if(this.d.isDown){
+		this.warrior.move("DR");
+	    }
+	    else{
+		this.warrior.move("D");
+	    }
+	}
+	if(this.space.isDown){
+	    this.warrior.addArrow();									}
     }
 };
 
