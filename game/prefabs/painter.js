@@ -42,14 +42,18 @@ Painter.prototype.update = function() {
 	    particle.taggedToKill = true;
 	    particle.killTimer = this.game.time.create();
 	    particle.killTimer.add(this.game.KILL_TIME, function () {
-		particle.destroy(true);
-        // particle.connections.forEach(function (conn) {
-        //      this.game.physics.p2.removeSpring(conn.spring);
-        //      console.log(particle);
-        //      var q = conn.sprite.connections.filter(function (ar) {return ar.sprite == particle;})[0];
-        //      if (q != undefined)
-        //          this.game.physics.p2.removeSpring(q.spring);
-        //     }, this, true);
+    		particle.destroy(true);
+
+            for (var sprite in particle.connections) {
+                var spring = particle.connections[sprite];
+                this.game.physics.p2.removeSpring(spring);
+                if (typeof sprite.connections !== 'undefined' && 
+                    particle in sprite.connections) {
+                    var spring = sprite.connections[particle];
+                    this.game.physics.p2.removeSpring(spring);
+                    delete sprite.connections[particle];
+                }
+            }
 	    }, this);
 	    particle.killTimer.start();
 	    return;
