@@ -95,10 +95,16 @@ UIGroup.prototype.initInfo = function() {
                                             this.info);
     this.info.pp.anchor.set(0.5, 0);
 
-
+    this.info.warrior = this.game.add.group(this.info);
+    this.info.warrior.y = 200;
+    this.info.warrior.image = this.game.add.image(50, 0, "warrior", 130, this.info.warrior);
+    this.info.warrior.hp = this.game.add.bitmapText(120, 30, 'minecraftia',
+                                                    "",
+                                                    16,
+                                                    this.info.warrior);
 }
 
-UIGroup.prototype.updateInfo = function(pp, color) {
+UIGroup.prototype.updateInfo = function(pp, color, hp) {
     this.info.pp.text = "Paint Points: " + pp;
 
     var health = Math.floor(color.s*this.game.STAT_MAG);
@@ -114,6 +120,8 @@ UIGroup.prototype.updateInfo = function(pp, color) {
     ));
     this.infoGraphics.lineStyle(1, 0x000000);
     this.infoGraphics.drawRect(0, 0, 64, 64);
+
+    this.info.warrior.hp.text = hp + "/" + this.game.WARRIOR_HEALTH;
 }
 
 module.exports = UIGroup;

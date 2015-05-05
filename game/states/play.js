@@ -86,17 +86,6 @@ Play.prototype = {
     },
 
     initWalls: function() {
-        var wallSize = 100;
-
-        this.walls = this.game.add.group();
-        this.left = this.game.add.sprite(50, 50, 'fireArrow');
-        this.game.physics.p2.enable(this.left, true);
-        this.left.body.setCollisionGroup(this.fluidCG);
-        this.left.body.setCircle(100);
-        this.left.body.collides(this.arrowCG);
-        this.walls.add(this.left);
-
-
 	// this.game.physics.p2.updateBoundsCollisionGroup();
         // var right = this.game.add.sprite(this.game.PLAY_WIDTH - wallSize, 0)
         // right.width = wallSize;
@@ -191,7 +180,7 @@ Play.prototype = {
 
 	this.ui.update();
 	this.painter.update();
-	this.ui.updateInfo(this.painter.pp, this.painter.color);
+	this.ui.updateInfo(this.painter.pp, this.painter.color, this.warrior.health);
 
 	if (this.a.isDown){
 	    this.warrior.move("L");

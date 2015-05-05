@@ -5,7 +5,8 @@ var Warrior = function(game, x, y, fluidCG, warriorCG, arrowCG, wallCG) {
     Phaser.Sprite.call(this, game, x, y, 'warrior');
 
     this.game.WARRIOR_VELOCITY = 300;
-    this.health = 100000;
+    this.game.WARRIOR_HEALTH = 10000;
+    this.health = this.game.WARRIOR_HEALTH;
     this.curDir = "D";
     this.lastShot = 0;
     //anchor
