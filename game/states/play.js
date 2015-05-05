@@ -20,6 +20,7 @@ Play.prototype = {
 	this.game.STAT_MAG = 100;
 	this.game.PLAY_WIDTH = 800;
 	this.game.PLAY_HEIGHT = 800;
+	this.game.KILL_TIME = 2500;  // in ms
     },
 
     initPhysics: function() {
