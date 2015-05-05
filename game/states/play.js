@@ -92,7 +92,6 @@ Play.prototype = {
 		var addedVelocity = this.velocityF(this.selectedParticles[i].parent.sprite.x - mousePos.x, this.selectedParticles[i].parent.sprite.y - mousePos.y);
 		this.selectedParticles[i].velocity[0] += addedVelocity.x;
 		this.selectedParticles[i].velocity[1] += addedVelocity.y;
-		console.log(addedVelocity);
 	    }
 	    this.selectedParticles = [];
 	} else {

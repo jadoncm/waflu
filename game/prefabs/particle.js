@@ -22,6 +22,13 @@ var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arr
 
     this.health = this.color.s*this.game.STAT_MAG;
     this.attack = this.color.h*this.game.STAT_MAG;
+
+    this.body.damping = 1;
+    var timer = this.game.time.create();
+    timer.add(200, function () {
+        this.body.damping = 0.5;
+    }, this);
+    timer.start();
 };
 
 Particle.prototype = Object.create(Phaser.Sprite.prototype);
