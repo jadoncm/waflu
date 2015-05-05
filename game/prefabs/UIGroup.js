@@ -97,15 +97,21 @@ UIGroup.prototype.initInfo = function() {
 
     this.info.warrior = this.game.add.group(this.info);
     this.info.warrior.y = 200;
-    this.info.warrior.image = this.game.add.image(40, 0, "warrior", 130, this.info.warrior);
-    this.info.warrior.hp = this.game.add.bitmapText(110, 40, 'minecraftia',
+    this.info.warrior.image = this.game.add.image(30, 0, "warrior", 130, this.info.warrior);
+    this.info.warrior.hp = this.game.add.bitmapText(100, 40, 'minecraftia',
                                                     "",
                                                     16,
                                                     this.info.warrior);
     this.info.warrior.graphics = this.game.add.graphics(0, 75, this.info.warrior);
+
+    this.info.warrior.score = this.game.add.bitmapText(this.game.UI_WIDTH / 2, 200, 'minecraftia',
+                                                       "",
+                                                       16,
+                                                       this.info.warrior);
+    this.info.warrior.score.anchor.set(0.5, 0);
 }
 
-UIGroup.prototype.updateInfo = function(pp, color, hp) {
+UIGroup.prototype.updateInfo = function(pp, color, hp, score) {
     this.info.pp.text = "Paint Points: " + pp;
 
     var health = Math.floor(color.s*this.game.STAT_MAG);
@@ -134,6 +140,11 @@ UIGroup.prototype.updateInfo = function(pp, color, hp) {
     this.info.warrior.graphics.endFill();
     this.info.warrior.graphics.lineStyle(2, 0x000000);
     this.info.warrior.graphics.drawRect(50, 0, this.game.UI_WIDTH - 100, 40);
+
+    this.info.warrior.score.text = "Time alive: " + Math.floor(score/60) + ":";
+    if (score % 60 < 10)
+        this.info.warrior.score.text += 0;
+    this.info.warrior.score.text += score % 60;
 }
 
 module.exports = UIGroup;

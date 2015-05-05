@@ -184,7 +184,8 @@ Play.prototype = {
 
 	this.ui.update();
 	this.painter.update();
-	this.ui.updateInfo(this.painter.pp, this.painter.color, this.warrior.health);
+	this.ui.updateInfo(this.painter.pp, this.painter.color,
+                           this.warrior.health, this.warrior.score);
 
 	if (this.a.isDown){
 	    this.warrior.move("L");
