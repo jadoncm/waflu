@@ -4,7 +4,7 @@ var UIGroup = function(game, parent) {
     Phaser.Group.call(this, game, parent);
     this.game.UI_WIDTH = 300;
 
-    this.x = 800;
+    this.x = this.game.PLAY_WIDTH;
     this.y = 0;
 
     this.graphics = this.game.add.graphics(0, 0, this);
@@ -71,15 +71,49 @@ UIGroup.prototype.selectingColor = function() {
 
 UIGroup.prototype.initInfo = function() {
     this.info = this.game.add.group(this);
-    this.info.pp = this.game.add.bitmapText(this.game.UI_WIDTH / 2, 300, 'minecraftia',
+    this.info.y = 300;
+
+    this.info.stats = this.game.add.group(this.info);
+    this.info.stats.x = 80;
+    this.info.health = this.game.add.bitmapText(80, 4, 'minecraftia',
+                                                "",
+                                                12,
+                                                this.info.stats);
+    this.info.attack = this.game.add.bitmapText(80, 24, 'minecraftia',
+                                                "",
+                                                12,
+                                                this.info.stats);
+    this.info.cost = this.game.add.bitmapText(80, 44, 'minecraftia',
+                                              "",
+                                              12,
+                                              this.info.stats);
+    this.infoGraphics = this.game.add.graphics(0, 0, this.info.stats);
+
+    this.info.pp = this.game.add.bitmapText(this.game.UI_WIDTH / 2, 90, 'minecraftia',
                                             "",
-                                            20,
+                                            16,
                                             this.info);
     this.info.pp.anchor.set(0.5, 0);
+
+
 }
 
-UIGroup.prototype.updateInfo = function(pp) {
+UIGroup.prototype.updateInfo = function(pp, color) {
     this.info.pp.text = "Paint Points: " + pp;
+
+    var health = Math.floor(color.s*this.game.STAT_MAG);
+    var attack = Math.floor(color.h*this.game.STAT_MAG);
+    this.info.health.text = "Health: " + health;
+    this.info.attack.text = "Attack: " + attack;
+    this.info.cost.text = "Cost: " + (health+attack);
+
+    this.infoGraphics.beginFill(Phaser.Color.getColor(
+        color.r,
+        color.g,
+        color.b
+    ));
+    this.infoGraphics.lineStyle(1, 0x000000);
+    this.infoGraphics.drawRect(0, 0, 64, 64);
 }
 
 module.exports = UIGroup;

@@ -116,10 +116,6 @@ Play.prototype = {
 	mousePos.y = Math.floor(mousePos.y);
 	var mouseDown = this.game.input.mousePointer.isDown;
 
-	this.ui.update();
-        this.painter.update();
-        this.ui.updateInfo(this.painter.pp);
-
         this.checkInsidePlay();
         this.checkInsideSquare();
 
@@ -136,9 +132,14 @@ Play.prototype = {
             this.painter.add(mousePos.x, mousePos.y);
 	}
 
+        // set color
         if (mouseDown && this.ui.selectingColor()) {
             this.painter.setColor(this.ui.getColor());
         }
+
+	this.ui.update();
+        this.painter.update();
+        this.ui.updateInfo(this.painter.pp, this.painter.color);
     }
 };
 

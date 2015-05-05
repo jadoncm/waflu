@@ -6,7 +6,6 @@ var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arr
     this.game.physics.p2.enable(this, false);
     
     this.color = color;
-    Phaser.Color.RGBtoHSV(this.color.r, this.color.g, this.color.b, this.color);
 
     this.id = id;
     this.body.setMaterial(material);
@@ -21,8 +20,8 @@ var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arr
 
     this.connections = {};
 
-    this.health = this.color.s*this.game.STAT_MAG;
-    this.attack = this.color.h*this.game.STAT_MAG;
+    this.health = Math.floor(this.color.s*this.game.STAT_MAG);
+    this.attack = Math.floor(this.color.h*this.game.STAT_MAG);
 
     this.body.damping = 1;
     var timer = this.game.time.create();

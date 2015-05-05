@@ -10,6 +10,17 @@ var Painter = function(game, parent, material, fluidCG, warriorCG, arrowCG) {
     this.fluidCG = fluidCG;
     this.warriorCG = warriorCG;
     this.arrowCG = arrowCG;
+    
+    this.ppBoost = 10;
+    var timer = this.game.time.create();
+    timer.loop(50, function() {
+        this.pp += this.ppBoost;
+    }, this);
+    timer.loop(10000, function() {
+        this.ppBoost += 2;
+    }, this);
+    timer.start();
+    
 
     this.initParticles();
 };
@@ -96,11 +107,16 @@ Painter.prototype.move = function() {
 };
 
 Painter.prototype.add = function(x, y, color) {
-    this.particles.add(
-        new Particle(this.game, x, y,
-                     this.particles.total + 1, this.color,
-                     this.paintMaterial, this.fluidCG, this.warriorCG, this.arrowCG)
-    );
+    var cost = Math.floor(this.color.s*this.game.STAT_MAG) +
+        Math.floor(this.color.h*this.game.STAT_MAG);
+    if (this.pp >= cost) {
+        var particle =
+            new Particle(this.game, x, y,
+                         this.particles.total + 1, this.color,
+                         this.paintMaterial, this.fluidCG, this.warriorCG, this.arrowCG)
+        this.pp -= particle.attack + particle.health;
+        this.particles.add(particle);
+    }
 }
 
 Painter.prototype.select = function(particle) {
@@ -115,8 +131,10 @@ Painter.prototype.deselect = function() {
 }
 
 Painter.prototype.setColor = function(color) {
-    if (color.a)
+    if (color.a) {
         this.color = color;
+        Phaser.Color.RGBtoHSV(this.color.r, this.color.g, this.color.b, this.color);
+    }
 }
 
 module.exports = Painter;
