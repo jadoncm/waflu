@@ -21,6 +21,7 @@ Preload.prototype = {
 	this.load.image('colors', 'assets/colors.png');
 	this.load.image('startButton', 'assets/button_blank_gray_01.png');
 	this.load.image('fireArrow', 'assets/fire-arrow.png');
+	this.load.image('background', 'assets/background.jpg');
 	this.load.spritesheet('warrior', 'assets/warrior.png', 64, 64, 273);
 
 	this.load.bitmapFont('minecraftia', 'assets/minecraftia.png', 'assets/minecraftia.fnt');

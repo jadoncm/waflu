@@ -4,7 +4,7 @@ var FireArrow = require('../prefabs/fireArrow')
 var Warrior = function(game, x, y, fluidCG, warriorCG, arrowCG, wallCG) {
     Phaser.Sprite.call(this, game, x, y, 'warrior');
 
-    this.game.WARRIOR_VELOCITY = 200;
+    this.game.WARRIOR_VELOCITY = 300;
     this.health = 100000;
     this.curDir = "D";
     this.lastShot = 0;

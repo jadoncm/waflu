@@ -11,14 +11,16 @@ Play.prototype = {
 	this.initPhysics();
 	this.initMouse();
         this.initKey();
+        this.game.add.image(0, 0, 'background');
 
-	this.ui = new UIGroup(this.game);
 	this.painter = new Painter(this.game, null, this.paintMaterial, this.fluidCG, this.warriorCG, this.arrowCG);
 	this.warrior = new Warrior(this.game, this.game.PLAY_WIDTH / 2, this.game.PLAY_HEIGHT / 2, this.fluidCG, this.warriorCG, this.arrowCG, this.wallCG);
 	this.game.add.existing(this.warrior);
 
         this.initBox();
         this.initWalls();
+
+	this.ui = new UIGroup(this.game);
     },
 
     setConstants: function() {
