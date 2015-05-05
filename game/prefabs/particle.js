@@ -81,12 +81,21 @@ Particle.prototype.hitArrow = function(particleBody, arrowBody) {
 }
 
 Particle.prototype.collideParticle = function(body1, body2) {
-    if (body1.sprite.id < body2.sprite.id) {
+    // var other = this.connections.filter(function (elt) { return elt.sprite != body2.sprite; })[0];
+    // if (other != undefined) {
+    //     body2.sprite.connections.push({
+    //         sprite: body1.sprite,
+    //         spring: other.spring
+    //     });
+    // } else {
+
+    // }
+    // if (body1.sprite.id < body2.sprite.id) {
 	this.connections.push({
 	    sprite: body2.sprite,
 	    spring: this.game.physics.p2.createSpring(body1, body2, 16, 8, 0.3)
 	});
-    }
+    // }
 }
 
 Particle.prototype.loseHealth = function(damage) {

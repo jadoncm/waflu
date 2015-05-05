@@ -157,9 +157,18 @@ Play.prototype = {
 	this.graphics.drawRect(0, 0, 800, 1100);
 	this.particles.forEach(function(particle) {
 	    if (particle.inBox() && particle.body.velocity.x < 3 && particle.body.velocity.y < 3 && !particle.taggedToKill) {
-	    	console.log(particle.id);
+	    	// console.log(particle.id);
 	    	particle.taggedToKill = true;
 	    	particle.killTimer = this.game.time.create();
+
+	    	// particle.connections.forEach(function (conn) {
+	    	// 	this.game.physics.p2.removeSpring(conn.spring);
+	    	// 	console.log(particle);
+	    	// 	var q = conn.sprite.connections.filter(function (ar) {return ar.sprite == particle;})[0];
+	    	// 	if (q != undefined)
+		    // 		this.game.physics.p2.removeSpring(q.spring);
+	    	// }, this, true);
+
 		    particle.killTimer.add(this.game.KILL_TIME, function () {
 		        particle.destroy(true);
 		    }, this);
@@ -190,6 +199,16 @@ Play.prototype = {
 	    var particle = this.selectedParticles[i].parent.sprite;
 	    this.selectedGraphics.arc(particle.x, particle.y, this.game.PARTICLE_SIZE, 0, 2*Math.PI);
 	}
+
+	this.graphics.lineStyle(10, 0xFFFFFF, 255);
+	this.graphics.moveTo(150, 150);
+	this.graphics.lineTo(150, 650);
+	this.graphics.moveTo(150, 650);
+	this.graphics.lineTo(650, 650);
+	this.graphics.moveTo(650, 650);
+	this.graphics.lineTo(650, 150);
+	this.graphics.moveTo(650, 150);
+	this.graphics.lineTo(150, 150);
     }
 };
     
