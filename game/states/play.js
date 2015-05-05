@@ -11,6 +11,7 @@ Play.prototype = {
 	this.game.STAT_MAG = 100;
 	this.game.PLAY_WIDTH = 800;
 	this.game.PLAY_HEIGHT = 800;
+	this.game.KILL_TIME = 2500;  // in ms
 
 	this.game.world.setBounds(0, 0, this.game.PLAY_WIDTH, this.game.PLAY_HEIGHT);
 	this.color = Phaser.Color.createColor(255, 255, 255);
@@ -155,6 +156,17 @@ Play.prototype = {
 	this.graphics.beginFill(0x000000, 1);
 	this.graphics.drawRect(0, 0, 800, 1100);
 	this.particles.forEach(function(particle) {
+	    if (particle.inBox() && particle.body.velocity.x < 3 && particle.body.velocity.y < 3 && !particle.taggedToKill) {
+	    	console.log(particle.id);
+	    	particle.taggedToKill = true;
+	    	particle.killTimer = this.game.time.create();
+		    particle.killTimer.add(this.game.KILL_TIME, function () {
+		        particle.destroy(true);
+		    }, this);
+		    particle.killTimer.start();
+	    	return;
+	    }
+
 	    this.graphics.beginFill(
 		Phaser.Color.getColor(particle.color.r, particle.color.g, particle.color.b),
 		1
