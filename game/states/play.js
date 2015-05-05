@@ -21,6 +21,7 @@ Play.prototype = {
 	this.game.PLAY_WIDTH = 800;
 	this.game.PLAY_HEIGHT = 800;
 	this.game.KILL_TIME = 2500;  // in ms
+        this.game.PAINT_BORDER = 150;
     },
 
     initPhysics: function() {
@@ -52,6 +53,9 @@ Play.prototype = {
 
 	this.game.input.onDown.add(this.click, this);
 	this.game.input.onUp.add(this.release, this);
+
+        this.insideSquare = false;
+        this.insidePlay = true;
     },
 
     mouseHits: function() {
@@ -79,9 +83,21 @@ Play.prototype = {
     checkInsideSquare: function() {
         var mousePos = this.game.input.mousePointer.position;
 	this.insideSquare = false;
-	if (mousePos.x > 150 && mousePos.x < 650)
-	    if (mousePos.y > 150 && mousePos.y < 650)
+	if (mousePos.x > this.game.PAINT_BORDER &&
+            mousePos.x < this.game.PLAY_WIDTH - this.game.PAINT_BORDER &&
+            mousePos.y > this.game.PAINT_BORDER &&
+            mousePos.y < this.game.PLAY_HEIGHT - this.game.PAINT_BORDER)
 		this.insideSquare = true;
+    },
+
+    checkInsidePlay: function() {
+        var mousePos = this.game.input.mousePointer.position;
+	this.insidePlay = false;
+	if (mousePos.x >= 0 &&
+            mousePos.x < this.game.PLAY_WIDTH &&
+            mousePos.y >= 0 &&
+            mousePos.y < this.game.PLAY_HEIGHT)
+		this.insidePlay = true;
     },
 
     update: function() {
@@ -93,6 +109,7 @@ Play.prototype = {
 	this.ui.update();
         this.painter.update();
 
+        this.checkInsidePlay();
         this.checkInsideSquare();
 
         // select particles
@@ -103,10 +120,14 @@ Play.prototype = {
 	    }
 	}
 
-        // drawing partiles
-	if (mouseDown && !this.insideSquare && !this.selecting) {
+        // drawing particles
+	if (mouseDown && !this.insideSquare && !this.selecting && this.insidePlay) {
             this.painter.add(mousePos.x, mousePos.y);
 	}
+
+        if (mouseDown && this.ui.selectingColor()) {
+            this.painter.setColor(this.ui.getColor());
+        }
     }
 };
 

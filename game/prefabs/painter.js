@@ -36,7 +36,7 @@ Painter.prototype.initParticles = function() {
 Painter.prototype.update = function() {
     this.graphics.clear();
     this.graphics.beginFill(0x000000, 1);
-    this.graphics.drawRect(0, 0, 800, 1100);
+    this.graphics.drawRect(0, 0, this.game.PLAY_WIDTH, this.game.PLAY_HEIGHT);
     this.particles.forEach(function(particle) {
 	if (particle.inBox() && particle.body.velocity.x < 3 && particle.body.velocity.y < 3 && !particle.taggedToKill) {
 	    particle.taggedToKill = true;
@@ -111,6 +111,11 @@ Painter.prototype.deselect = function() {
     for (var i = 0; i < this.selectedParticles.length; i++)
 	this.selectedParticles[i].selected = false;
     this.selectedParticles = [];
+}
+
+Painter.prototype.setColor = function(color) {
+    if (color.a)
+        this.color = color;
 }
 
 module.exports = Painter;
