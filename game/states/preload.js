@@ -21,6 +21,8 @@ Preload.prototype = {
 	this.load.image('colors', 'assets/colors.png');
 
 	this.load.image('startButton', 'assets/button_blank_gray_01.png');  
+
+	this.load.bitmapFont('minecraftia', 'assets/minecraftia.png', 'assets/minecraftia.fnt');
     },
     create: function() {
 	this.asset.cropEnabled = false;

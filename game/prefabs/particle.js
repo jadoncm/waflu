@@ -1,7 +1,5 @@
 'use strict';
 
-var MAG = 100;
-
 var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arrowCG) {
     Phaser.Sprite.call(this, game, x, y);
 
@@ -22,8 +20,8 @@ var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arr
 
     this.connections = [];
 
-    this.health = this.color.s*MAG;
-    this.attack = this.color.h*MAG;
+    this.health = this.color.s*this.game.STAT_MAG;
+    this.attack = this.color.h*this.game.STAT_MAG;
 };
 
 Particle.prototype = Object.create(Phaser.Sprite.prototype);
@@ -35,8 +33,8 @@ Particle.prototype.update = function() {
 };
 
 Particle.prototype.updateColor = function() {
-    this.color.s = this.health/MAG;
-    this.color.h = this.attack/MAG;
+    this.color.s = this.health/this.game.STAT_MAG;
+    this.color.h = this.attack/this.game.STAT_MAG;
     Phaser.Color.HSVtoRGB(this.color.h, this.color.s, this.color.v, this.color);
 }
 

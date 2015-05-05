@@ -1,16 +1,21 @@
 'use strict';
 
 var Particle = require('../prefabs/particle');
+var UIGroup = require('../prefabs/UIGroup');
 
 function Play() {}
 Play.prototype = {
     create: function() {
+	this.color = Phaser.Color.createColor(255, 255, 255);
 	this.game.PARTICLE_SIZE = 8;
 	this.game.MAX_VELOCITY = 40;
+	this.game.STAT_MAG = 100;
 
 	this.game.physics.startSystem(Phaser.Physics.P2JS);
 
 	this.game.physics.p2.setImpactEvents(true);
+
+	this.ui = new UIGroup(this.game);
 
 	this.spriteMaterial = this.game.physics.p2.createMaterial('spriteMaterial');
 	this.worldMaterial = this.game.physics.p2.createMaterial('worldMaterial');
@@ -23,7 +28,6 @@ Play.prototype = {
 	this.warriorCG = this.game.physics.p2.createCollisionGroup();
 	this.game.physics.p2.updateBoundsCollisionGroup();
 
-	this.color = Phaser.Color.createColor(255, 255, 255);
 	this.particles = this.game.add.group();
 	this.shift = this.game.input.keyboard.addKey(Phaser.Keyboard.SHIFT);
 	this.z = this.game.input.keyboard.addKey(Phaser.Keyboard.Z);
@@ -58,35 +62,10 @@ Play.prototype = {
 
 	this.graphics.filters = [blurX, blurY, threshold];
 
-	this.colorBitmap = this.game.make.bitmapData(800, 800);
-	this.colorBitmap.draw('colors', 35, 35);
-	this.colorBitmap.update();
-	this.colorImage = this.colorBitmap.addToWorld();
 
-	this.tooltip = this.game.make.bitmapData(64, 64);
-	this.tooltipSprite = this.game.add.sprite(0, 0, this.tooltip);
-
-	this.game.input.addMoveCallback(this.updateTooltip, this);
 
 	this.selectedParticles = [];
 	this.selectedGraphics = this.game.add.graphics();
-    },
-
-    updateTooltip: function(pointer, x, y) {
-	if (this.z.isDown) {
-	    var color = this.colorBitmap.getPixelRGB(Math.floor(x), Math.floor(y));
-	    if (color.a) {
-		this.tooltipSprite.visible = true;
-		this.tooltip.fill(0, 0, 0);
-		this.tooltip.rect(1, 1, 62, 62, color.rgba);
-		
-		this.tooltipSprite.x = x - 32;
-		this.tooltipSprite.y = y - 32;
-
-	    } else {
-		this.tooltipSprite.visible = false;
-	    }
-	}
     },
 
     velocityF: function(xDiff, yDiff) {
@@ -143,17 +122,6 @@ Play.prototype = {
 	    if (mousePos.y > 150 && mousePos.y < 650)
 		this.insideSquare = true;
 
-	if (this.z.isDown) {
-	    if (mouseDown) {
-		this.color = this.colorBitmap.getPixelRGB(
-		    Math.floor(mousePos.x), Math.floor(mousePos.y));
-	    }
-	    this.colorImage.visible = true;
-	} else {
-	    this.colorImage.visible = false;
-	    this.tooltipSprite.visible = false;
-	}
-
 	if (mouseDown) {
 	    var bodies = this.game.physics.p2.hitTest(mousePos, this.particles.children);
 	    if (this.selecting) {
@@ -163,6 +131,19 @@ Play.prototype = {
 		}
 	    }
 	}
+	var bodies = this.game.physics.p2.hitTest(mousePos, this.particles.children);
+	if (this.c.isDown) {
+	    if (mouseDown && bodies.length && !bodies[0].selected) {
+		bodies[0].selected = true;
+		this.selectedParticles.push(bodies[0]);
+	    }
+	}
+
+	if (this.v.isDown) {
+	    for (var i = 0; i < this.selectedParticles.length; i++) {
+		this.selectedParticles[i].selected = false;
+	    }
+	}
 
 	if (mouseDown && !this.insideSquare && !this.selecting) {
 	    this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, this.color, this.spriteMaterial, this.fluidCG, this.warriorCG, this.arrowCG));
@@ -170,7 +151,7 @@ Play.prototype = {
 
 	this.graphics.clear();
 	this.graphics.beginFill(0x000000, 1);
-	this.graphics.drawRect(0, 0, 800, 800);
+	this.graphics.drawRect(0, 0, 800, 1100);
 	this.particles.forEach(function(particle) {
 	    this.graphics.beginFill(
 		Phaser.Color.getColor(particle.color.r, particle.color.g, particle.color.b),
@@ -195,7 +176,7 @@ Play.prototype = {
 	    var particle = this.selectedParticles[i].parent.sprite;
 	    this.selectedGraphics.arc(particle.x, particle.y, this.game.PARTICLE_SIZE, 0, 2*Math.PI);
 	}
-    },
+    }
 };
-
+    
 module.exports = Play;
