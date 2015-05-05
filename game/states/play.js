@@ -11,7 +11,9 @@ Play.prototype = {
 	this.initPhysics();
 	this.initMouse();
         this.initKey();
-        this.game.add.image(0, 0, 'background');
+        this.bg = this.game.add.image(0, 0, 'background');
+        this.bg.width = this.game.PLAY_WIDTH;
+        this.bg.height = this.game.PLAY_HEIGHT;
 
 	this.painter = new Painter(this.game, null, this.paintMaterial, this.fluidCG, this.warriorCG, this.arrowCG);
 	this.warrior = new Warrior(this.game, this.game.PLAY_WIDTH / 2, this.game.PLAY_HEIGHT / 2, this.fluidCG, this.warriorCG, this.arrowCG, this.wallCG);
