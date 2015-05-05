@@ -19,7 +19,7 @@ var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arr
     this.selected = false;
     this.taggedToKill = false;
 
-    this.connections = {};
+    this.connections = [];
 
     this.health = this.color.s*this.game.STAT_MAG;
     this.attack = this.color.h*this.game.STAT_MAG;
@@ -70,19 +70,32 @@ Particle.prototype.hitArrow = function(particleBody, arrowBody) {
 }
 
 Particle.prototype.collideParticle = function(body1, body2) {
-    if (!(body2.sprite in this.connections))
-	   this.connections[body2.sprite] = this.game.physics.p2.createSpring(body1, body2, 16, 8, 0.3);
+    if (this.findSpring(body2.sprite) > -1) {
+	    this.connections.push({
+            sprite: body2.sprite,
+            spring: this.game.physics.p2.createSpring(body1, body2, 16, 8, 0.3)
+        });
+    }
 }
 
+Particle.prototype.findSpring = function(sprite) {
+    for (var i = 0; i < this.connections; i ++) {
+        if (this.connections[i].sprite == body2.sprite)
+            return i;
+    }
+    return -1;
+}
+Particle.prototype.deleteSpring = function(sprite) {
+    var i = this.findSpring(sprite);
+    this.game.physics.p2.removeSpring(this.connections[i].spring);
+    this.connections.splice(i, 1);
+}
 Particle.prototype.deleteSprings = function() {
-    for (var sprite in this.connections) {
-        var spring = this.connections[sprite];
-        this.game.physics.p2.removeSpring(spring);
-        if (typeof sprite.connections !== 'undefined' && 
-            this in sprite.connections) {
-            var spring = sprite.connections[this];
-            this.game.physics.p2.removeSpring(spring);
-            delete sprite.connections[this];
+    for (var i = 0; i < this.connections; i ++) {
+        var sprite = this.connections[i].sprite;
+        this.deleteSpring(sprite);
+        if (typeof sprite.connections !== 'undefined' && sprite.findSpring(this) > -1) {
+            sprite.deleteSpring(this);
         }
     }
 }

@@ -59,18 +59,21 @@ Painter.prototype.update = function() {
 
     	var sprite;
     	var maxDist = 32;
-    	for (var i = 0; i < particle.connections.length; i++) {
-    	    sprite = particle.connections[i].sprite;
-    	    if (Math.sqrt(Math.pow(sprite.x - particle.x, 2) + Math.pow(sprite.x - particle.x, 2)) > maxDist) {
-    		this.game.physics.p2.removeSpring(particle.connections[i].spring);
-    		particle.connections.splice(i, 1);
-    	    }
-    	}
-        }, this, true);
+        for (var sprite in particle.connections) {
+            console.dir(sprite);
+            console.log(particle.connections);
+            var dist = Math.sqrt(Math.pow(sprite.x - particle.x, 2) + Math.pow(sprite.x - particle.x, 2));
+            if (dist > maxDist) {
+                particle.deleteSpring(sprite);
+                sprite.deleteSpring(particle);
+                console.log('out of dist');
+            }
+        }
+    }, this, true);
 
-        this.selectedGraphics.clear();
-        this.selectedGraphics.lineStyle(2, 0xFFFFFF);
-        for (var i = 0; i < this.selectedParticles.length; i++) {
+    this.selectedGraphics.clear();
+    this.selectedGraphics.lineStyle(2, 0xFFFFFF);
+    for (var i = 0; i < this.selectedParticles.length; i++) {
     	var particle = this.selectedParticles[i];
     	this.selectedGraphics.arc(particle.x, particle.y, this.game.PARTICLE_SIZE, 0, 2*Math.PI);
     }
