@@ -6,11 +6,14 @@ var UIGroup = require('../prefabs/UIGroup');
 function Play() {}
 Play.prototype = {
     create: function() {
-	this.color = Phaser.Color.createColor(255, 255, 255);
 	this.game.PARTICLE_SIZE = 8;
 	this.game.MAX_VELOCITY = 40;
 	this.game.STAT_MAG = 100;
+	this.game.PLAY_WIDTH = 800;
+	this.game.PLAY_HEIGHT = 800;
 
+	this.game.world.setBounds(0, 0, this.game.PLAY_WIDTH, this.game.PLAY_HEIGHT);
+	this.color = Phaser.Color.createColor(255, 255, 255);
 	this.game.physics.startSystem(Phaser.Physics.P2JS);
 
 	this.game.physics.p2.setImpactEvents(true);
