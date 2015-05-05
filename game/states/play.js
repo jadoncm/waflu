@@ -1,10 +1,12 @@
 'use strict';
 
 var Particle = require('../prefabs/particle');
+var Warrior = require('../prefabs/warrior');
 
 function Play() {}
 Play.prototype = {
   create: function() {
+
 		this.game.PARTICLE_SIZE = 8;
 
 		this.game.physics.startSystem(Phaser.Physics.P2JS);
@@ -23,11 +25,22 @@ Play.prototype = {
 
 		this.color = Phaser.Color.createColor(255, 255, 255);
 		this.particles = this.game.add.group();
-		this.shift = this.game.input.keyboard.addKey(Phaser.Keyboard.SHIFT);
+
+
 		this.z = this.game.input.keyboard.addKey(Phaser.Keyboard.Z);
 		this.x = this.game.input.keyboard.addKey(Phaser.Keyboard.X);
 		this.c = this.game.input.keyboard.addKey(Phaser.Keyboard.C);
 		this.v = this.game.input.keyboard.addKey(Phaser.Keyboard.V);
+
+// Warrior Stuff
+		this.w = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
+		this.s = this.game.input.keyboard.addKey(Phaser.Keyboard.S);
+		this.a = this.game.input.keyboard.addKey(Phaser.Keyboard.A);
+		this.d = this.game.input.keyboard.addKey(Phaser.Keyboard.D);
+		this.shift = this.game.input.keyboard.addKey(Phaser.Keyboard.SHIFT);
+		this.space = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
+// End of Warrior Stuff
 		
 		this.mouseBody = this.game.add.sprite(100, 100);
 		this.dragSprings = [];
@@ -67,6 +80,8 @@ Play.prototype = {
 
 		this.selectedParticles = [];
 		this.selectedGraphics = this.game.add.graphics();
+		this.warrior = new Warrior(this.game, this.game.width / 2, this.game.height / 2, 0);
+		this.game.add.existing(this.warrior);
   },
 
   updateTooltip: function(pointer, x, y) {
@@ -143,6 +158,44 @@ Play.prototype = {
 		    else
 			this.particles.add(new Particle(this.game, mousePos.x, mousePos.y, this.particles.total + 1, "player2", this.color, this.spriteMaterial, this.player2CG, this.player1CG));
 		}
+
+
+		if (this.a.isDown){
+			this.warrior.move("L");
+		}
+
+		if (this.d.isDown){
+			this.warrior.move("R");
+		}
+
+		if (this.w.isDown){
+			if(this.a.isDown){
+				this.warrior.move("UL");
+			}
+			else if(this.d.isDown){
+				this.warrior.move("UR");
+			}
+			else{
+				this.warrior.move("U");
+			}
+		}
+
+		if (this.s.isDown){
+			if(this.a.isDown){
+				this.warrior.move("DL");
+			}
+			else if(this.d.isDown){
+				this.warrior.move("DR");
+			}
+			else{
+				this.warrior.move("D");
+			}
+		}
+
+		if(this.space.isDown){
+			this.warrior.addArrow();											
+		}
+
 
 		this.graphics.clear();
 		this.graphics.beginFill(0x000000, 1);
