@@ -54,68 +54,61 @@ Warrior.prototype.stop = function() {
     this.body.velocity.y = 0;
     this.animations.stop();
 }
+Warrior.prototype.addArrow = function() {
+	if (!(this.game.time.time - this.lastShot > 300)) {
+		return;
+	} else {
+		this.lastShot = this.game.time.time;
+	}
 
-Warrior.prototype.addArrow = function(){
-    if(!(this.game.time.time - this.lastShot > 300)){
-	return;
-    }
-    else{
-	this.lastShot = this.game.time.time;
-    }
-
-    if(this.curDir == "U" || this.curDir == "UL" || this.curDir == "UR"){
-	this.animations.play('shootUp', 30, false);
-    }
-    else if(this.curDir == "L"){
-	this.animations.play('shootLeft', 30, false);	
-    }
-    else if(this.curDir == "R"){
-	this.animations.play('shootRight', 30, false);	
-    }
-    else { //shooting down or angled down
-	this.animations.play('shootDown', 30, false);
-    }
+	if (this.curDir == "U" || this.curDir == "UL" || this.curDir == "UR") {
+		this.animations.play('shootUp', 30, false);
+	} else if (this.curDir == "L"){
+		this.animations.play('shootLeft', 30, false);	
+	} else if (this.curDir == "R"){
+		this.animations.play('shootRight', 30, false);	
+	} else{  //shooting down or angled down
+		this.animations.play('shootDown', 30, false);
+	}
 
     this.fireArrows.add(new FireArrow(this.game, this.x, this.y, this.curDir, this.fluidCG, this.arrowCG, this.wallCG));
 }
 
-Warrior.prototype.move = function(direction) {
-    if(direction == "L"){
-	this.animations.play('walkLeft', 8, false);
-	this.body.velocity.x = -400;
-    }
-    else if(direction == "R"){
-	this.animations.play('walkRight', 8, true);
-	this.body.velocity.x = 400;
-    }
-    else if(direction == "U"){
-	this.animations.play('walkUp', 8, true);
-	this.body.velocity.y = -400;
-    }
-    else if(direction == "D"){
-	this.animations.play('walkDown', 8, true);
-	this.body.velocity.y = 400;
-    }
-    else if(direction == "UL"){
-	this.animations.play('walkUp', 8, true);
-	this.body.velocity.y = -200;
-	this.body.velocity.x = -200;
-    }
-    else if(direction == "UR"){
-	this.animations.play('walkUp', 8, true);
-	this.body.velocity.y = -200;
-	this.body.velocity.x = 200;
-    }
-    else if(direction == "DL"){
-	this.animations.play('walkDown', 8, true);
-	this.body.velocity.y = 200;
-	this.body.velocity.x = -200;
-    }
-    else {
-	this.animations.play('walkDown', 8, true);
-	this.body.velocity.y = 200;
-	this.body.velocity.x = 200;
-    }		
+Warrior.prototype.move = function(direction, still) {
+	if (still) {
+		this.body.velocity.x = 0;
+		this.body.velocity.y = 0;
+	} else {
+		if (direction == "L") {
+			this.animations.play('walkLeft', 8, false);
+			this.body.velocity.x = -400;
+		} else if (direction == "R") {
+			this.animations.play('walkRight', 8, true);
+			this.body.velocity.x = 400;
+		} else if (direction == "U") {
+			this.animations.play('walkUp', 8, true);
+			this.body.velocity.y = -400;
+		} else if (direction == "D") {
+			this.animations.play('walkDown', 8, true);
+			this.body.velocity.y = 400;
+		} else if (direction == "UL") {
+			this.animations.play('walkUp', 8, true);
+			this.body.velocity.y = -200;
+			this.body.velocity.x = -200;
+		} else if (direction == "UR") {
+			this.animations.play('walkUp', 8, true);
+			this.body.velocity.y = -200;
+			this.body.velocity.x = 200;
+		} else if (direction == "DL") {
+			this.animations.play('walkDown', 8, true);
+			this.body.velocity.y = 200;
+			this.body.velocity.x = -200;
+		} else {
+			this.animations.play('walkDown', 8, true);
+			this.body.velocity.y = 200;
+			this.body.velocity.x = 200;
+		}		
+	}
 }
 
 
