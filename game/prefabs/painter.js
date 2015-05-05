@@ -49,18 +49,23 @@ Painter.prototype.update = function() {
     this.graphics.beginFill(0x000000, 1);
     this.graphics.drawRect(0, 0, this.game.PLAY_WIDTH, this.game.PLAY_HEIGHT);
     this.particles.forEach(function(particle) {
-    	if (particle.inBox() &&
-            particle.body.velocity.x < 3 && particle.body.velocity.y < 3 &&
-            !particle.taggedToKill) {
+    	// if (particle.inBox() &&
+     //        particle.body.velocity.x < 3 && particle.body.velocity.y < 3 &&
+     //        !particle.taggedToKill) {
 
-    	    particle.taggedToKill = true;
-    	    particle.killTimer = this.game.time.create();
-    	    particle.killTimer.add(this.game.KILL_TIME, function () {
-                particle.delete();
-    	    }, this);
-    	    particle.killTimer.start();
-    	    return;
-    	}
+    	//     particle.taggedToKill = true;
+    	//     particle.killTimer = this.game.time.create();
+    	//     particle.killTimer.add(this.game.KILL_TIME, function () {
+     //            particle.delete();
+    	//     }, this);
+    	//     particle.killTimer.start();
+    	//     return;
+    	// }
+
+        if (particle.inBox() && particle.body.velocity.x < 0.1 && particle.body.velocity.y < 0.1) {
+            particle.delete();
+            return
+        }
 
     	this.graphics.beginFill(Phaser.Color.getColor(
             particle.color.r, particle.color.g, particle.color.b
