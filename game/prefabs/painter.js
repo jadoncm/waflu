@@ -49,7 +49,10 @@ Painter.prototype.update = function() {
     this.graphics.beginFill(0x000000, 1);
     this.graphics.drawRect(0, 0, this.game.PLAY_WIDTH, this.game.PLAY_HEIGHT);
     this.particles.forEach(function(particle) {
-    	if (particle.inBox() && particle.body.velocity.x < 3 && particle.body.velocity.y < 3 && !particle.taggedToKill) {
+    	if (particle.inBox() &&
+            particle.body.velocity.x < 3 && particle.body.velocity.y < 3 &&
+            !particle.taggedToKill) {
+
     	    particle.taggedToKill = true;
     	    particle.killTimer = this.game.time.create();
     	    particle.killTimer.add(this.game.KILL_TIME, function () {
@@ -83,10 +86,9 @@ Painter.prototype.update = function() {
 
     this.selectedGraphics.clear();
     this.selectedGraphics.lineStyle(2, 0xFFFFFF);
-    for (var i = 0; i < this.selectedParticles.length; i++) {
-    	var particle = this.selectedParticles[i];
-    	this.selectedGraphics.arc(particle.x, particle.y, this.game.PARTICLE_SIZE, 0, 2*Math.PI);
-    }
+    this.selectedParticles.forEach(function(particle) {
+        this.selectedGraphics.arc(particle.x, particle.y, this.game.PARTICLE_SIZE, 0, 2*Math.PI);
+    }, this, true);
 }
 
 Painter.prototype.velocityF = function(xDiff, yDiff) {
@@ -101,13 +103,13 @@ Painter.prototype.velocityF = function(xDiff, yDiff) {
 Painter.prototype.move = function() {
     var mousePos = this.game.input.mousePointer.position;
 
-    for (var i = 0; i < this.selectedParticles.length; i++) {
-	// velocityF makes the velociuty scaling with pointer position nonlinear - bounded total velocity
-	var addedVelocity = this.velocityF(this.selectedParticles[i].x - mousePos.x, this.selectedParticles[i].y - mousePos.y);
+    this.selectedParticles.forEach(function(particle) {
+        // velocityF makes the velociuty scaling with pointer position nonlinear - bounded total velocity
+        var addedVelocity = this.velocityF(particle.x - mousePos.x, particle.y - mousePos.y);
 
-	this.selectedParticles[i].body.velocity.x -= addedVelocity.x;
-	this.selectedParticles[i].body.velocity.y -= addedVelocity.y;
-    }
+        particle.body.velocity.x -= addedVelocity.x;
+        particle.body.velocity.y -= addedVelocity.y;
+    }, this, true);
 };
 
 Painter.prototype.add = function(x, y, color) {
@@ -129,8 +131,9 @@ Painter.prototype.select = function(particle) {
 }
 
 Painter.prototype.deselect = function() {
-    for (var i = 0; i < this.selectedParticles.length; i++)
-	this.selectedParticles[i].selected = false;
+    this.selectedParticles.forEach(function (particle) {
+        particle.selected = false;
+    }, this, true);
     this.selectedParticles = [];
 }
 
