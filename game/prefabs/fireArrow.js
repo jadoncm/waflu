@@ -1,6 +1,6 @@
 'use strict';
 
-var FireArrow = function(game, x, y, direction, fluidCG, arrowCG) {
+var FireArrow = function(game, x, y, direction, fluidCG, arrowCG, wallCG) {
     Phaser.Sprite.call(this, game, x, y, 'fireArrow');
     this.attack = 0.2*this.game.STAT_MAG;
     this.direction = direction;
@@ -10,7 +10,8 @@ var FireArrow = function(game, x, y, direction, fluidCG, arrowCG) {
     this.body.allowRotation = false;
     this.body.setCollisionGroup(arrowCG);
     this.body.collides(fluidCG);
-
+    this.body.collides(wallCG, this.collideWall, this);
+    console.log(wallCG);
     if(this.direction == "U"){
   	this.body.rotation -= .75;
   	this.body.velocity.y = -400;
@@ -56,5 +57,10 @@ FireArrow.prototype.update = function() {
     // write your prefab's specific update code here
     
 };
+
+FireArrow.prototype.collideWall = function() {
+    console.log("hello");
+    this.destroy();
+}
 
 module.exports = FireArrow;

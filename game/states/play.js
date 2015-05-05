@@ -14,10 +14,11 @@ Play.prototype = {
 
 	this.ui = new UIGroup(this.game);
 	this.painter = new Painter(this.game, null, this.paintMaterial, this.fluidCG, this.warriorCG, this.arrowCG);
-	this.warrior = new Warrior(this.game, this.game.PLAY_WIDTH / 2, this.game.PLAY_HEIGHT / 2, this.fluidCG, this.warriorCG, this.arrowCG);
+	this.warrior = new Warrior(this.game, this.game.PLAY_WIDTH / 2, this.game.PLAY_HEIGHT / 2, this.fluidCG, this.warriorCG, this.arrowCG, this.wallCG);
 	this.game.add.existing(this.warrior);
 
         this.initBox();
+        this.initWalls();
     },
 
     setConstants: function() {
@@ -43,6 +44,7 @@ Play.prototype = {
 	this.fluidCG = this.game.physics.p2.createCollisionGroup();
 	this.arrowCG = this.game.physics.p2.createCollisionGroup();
 	this.warriorCG = this.game.physics.p2.createCollisionGroup();
+	this.wallCG = this.game.physics.p2.createCollisionGroup();
 	this.game.physics.p2.updateBoundsCollisionGroup();
     },
 
@@ -81,6 +83,41 @@ Play.prototype = {
                                   this.game.PLAY_HEIGHT - 2*this.game.PAINT_BORDER);
     },
 
+    initWalls: function() {
+        var wallSize = 100;
+
+        this.walls = this.game.add.group();
+        this.left = this.game.add.sprite(50, 50, 'fireArrow');
+        this.game.physics.p2.enable(this.left, true);
+        this.left.body.setCollisionGroup(this.fluidCG);
+        this.left.body.setCircle(100);
+        this.left.body.collides(this.arrowCG);
+        this.walls.add(this.left);
+
+
+	// this.game.physics.p2.updateBoundsCollisionGroup();
+        // var right = this.game.add.sprite(this.game.PLAY_WIDTH - wallSize, 0)
+        // right.width = wallSize;
+        // right.height = this.game.PLAY_HEIGHT;
+
+        // var top = this.game.add.sprite(0, 0)
+        // top.width = this.game.PLAY_WIDTH;
+        // top.height = wallSize;
+
+        // var bottom = this.game.add.sprite(0, this.game.PLAY_HEIGHT - wallSize);
+        // bottom.width = this.game.PLAY_WIDTH;
+        // bottom.height = wallSize;
+
+        // var walls = [left, right, top, bottom];
+        // for (var i = 0; i < walls.length; i++) {
+        //     this.game.physics.p2.enable(walls[i], true);
+        //     walls[i].body.setCollisionGroup(this.wallCG);
+	//     walls[i].body.static = true;
+        // }
+
+        // left.body.setRectangle(100, 100);
+    },
+
     mouseHits: function() {
         var mousePos = this.game.input.mousePointer.position;
 	return this.game.physics.p2.hitTest(mousePos, this.painter.particles.children);
@@ -110,7 +147,7 @@ Play.prototype = {
             mousePos.x < this.game.PLAY_WIDTH - this.game.PAINT_BORDER &&
             mousePos.y > this.game.PAINT_BORDER &&
             mousePos.y < this.game.PLAY_HEIGHT - this.game.PAINT_BORDER)
-		this.insideSquare = true;
+	    this.insideSquare = true;
     },
 
     checkInsidePlay: function() {
@@ -120,77 +157,72 @@ Play.prototype = {
             mousePos.x < this.game.PLAY_WIDTH &&
             mousePos.y >= 0 &&
             mousePos.y < this.game.PLAY_HEIGHT)
-		this.insidePlay = true;
+	    this.insidePlay = true;
     },
 
     update: function() {
-		var mousePos = this.game.input.mousePointer.position;
-		mousePos.x = Math.floor(mousePos.x);
-		mousePos.y = Math.floor(mousePos.y);
-		var mouseDown = this.game.input.mousePointer.isDown;
+	var mousePos = this.game.input.mousePointer.position;
+	mousePos.x = Math.floor(mousePos.x);
+	mousePos.y = Math.floor(mousePos.y);
+	var mouseDown = this.game.input.mousePointer.isDown;
 
-	        this.checkInsidePlay();
-	        this.checkInsideSquare();
+	this.checkInsidePlay();
+	this.checkInsideSquare();
 
-	        // select particles
-	        if (mouseDown && this.selecting) {
-		    var bodies = this.mouseHits();
-		    if (bodies.length && !bodies[0].selected) {
-	                this.painter.select(bodies[0].parent.sprite);
-		    }
-		}
+	// select particles
+	if (mouseDown && this.selecting) {
+	    var bodies = this.mouseHits();
+	    if (bodies.length && !bodies[0].selected) {
+	        this.painter.select(bodies[0].parent.sprite);
+	    }
+	}
 
-	        // drawing particles
-		if (mouseDown && !this.insideSquare && !this.selecting && this.insidePlay) {
-	            this.painter.add(mousePos.x, mousePos.y);
-		}
+	// drawing particles
+	if (mouseDown && !this.insideSquare && !this.selecting && this.insidePlay) {
+	    this.painter.add(mousePos.x, mousePos.y);
+	}
 
-	        // set color
-	        if (mouseDown && this.ui.selectingColor()) {
-	            this.painter.setColor(this.ui.getColor());
-	        }
+	// set color
+	if (mouseDown && this.ui.selectingColor()) {
+	    this.painter.setColor(this.ui.getColor());
+	}
 
-		this.ui.update();
-	        this.painter.update();
-	        this.ui.updateInfo(this.painter.pp, this.painter.color);
+	this.ui.update();
+	this.painter.update();
+	this.ui.updateInfo(this.painter.pp, this.painter.color);
 
+	if (this.a.isDown){
+	    this.warrior.move("L");
+	}
+	if (this.d.isDown){
+	    this.warrior.move("R");
+	}
+	if (this.w.isDown){
+	    if(this.a.isDown){
+		this.warrior.move("UL");
+	    }
+	    else if(this.d.isDown){
+		this.warrior.move("UR");
+	    }
+	    else{
+		this.warrior.move("U");
+	    }
+	}
+	if (this.s.isDown){
+	    if(this.a.isDown){
+		this.warrior.move("DL");
+	    }
+	    else if(this.d.isDown){
+		this.warrior.move("DR");
+	    }
+	    else{
+		this.warrior.move("D");
+	    }
+	}
 
-		if (this.a.isDown){
-		    this.warrior.move("L", false);
-		}
-		if (this.d.isDown){
-		    this.warrior.move("R", false);
-		}
-		if (this.w.isDown){
-		    if(this.a.isDown){
-			this.warrior.move("UL", false);
-		    }
-		    else if(this.d.isDown){
-			this.warrior.move("UR", false);
-		    }
-		    else{
-			this.warrior.move("U", false);
-		    }
-		}
-		if (this.s.isDown){
-		    if(this.a.isDown){
-			this.warrior.move("DL", false);
-		    }
-		    else if(this.d.isDown){
-			this.warrior.move("DR", false);
-		    }
-		    else{
-			this.warrior.move("D", false);
-		    }
-		}
-
-		if(this.space.isDown){
-		    this.warrior.addArrow();									
-		}
-
-		if(!this.a.isDown && !this.d.isDown && !this.w.isDown !this.s.isDown){
-			this.warrior.move(this.warrior.curDir, false);
-		}
+	if(this.space.isDown){
+	    this.warrior.addArrow();								
+	}
     }
 };
 
