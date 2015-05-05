@@ -19,15 +19,17 @@ Preload.prototype = {
 	this.load.script('threshold', 'assets/threshold.js');
 
 	this.load.image('colors', 'assets/colors.png');
+	this.load.image('startButton', 'assets/button_blank_gray_01.png');
+	this.load.image('fireArrow', 'assets/fire-arrow.png');
+	this.load.spritesheet('warrior', 'assets/warrior.png', 64, 64, 273);
 
-	this.load.image('startButton', 'assets/button_blank_gray_01.png');  
     },
     create: function() {
 	this.asset.cropEnabled = false;
     },
     update: function() {
 	if(!!this.ready) {
-	    this.game.state.start('menu');
+	    this.game.state.start('play');
 	}
     },
     onLoadComplete: function() {
