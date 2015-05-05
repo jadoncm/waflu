@@ -30,27 +30,7 @@ var Particle = function(game, x, y, id, color, material, fluidCG, warriorCG, arr
         this.body.damping = 0.5;
     }, this);
     timer.start();
-
-    // var kill_timer = this.game.time.create();
-    // timer.add(7500, function () {
-    //     this.destroy(true);
-    // }, this);
-    // timer.start();
-
-    this.inBox = function () {
-        if (this.x > 150 && this.x < 650)
-            if (this.y > 150 && this.y < 650)
-                return  true;
-        return false;
-    };
 };
-
-Particle.prototype.inBox = function () {
-    if (this.body.x > 150 && this.body.x < 650)
-        if (this.body.y > 150 && this.body.y < 650)
-            this.insideSquare = true;
-    return false;
-}
 
 Particle.prototype = Object.create(Phaser.Sprite.prototype);
 Particle.prototype.constructor = Particle;
@@ -59,6 +39,13 @@ Particle.prototype.update = function() {
   // write your prefab's specific update code here
   
 };
+
+Particle.prototype.inBox = function () {
+    if (this.body.x > 150 && this.body.x < 650)
+        if (this.body.y > 150 && this.body.y < 650)
+            return true;
+    return false;
+}
 
 Particle.prototype.updateColor = function() {
     this.color.s = this.health/this.game.STAT_MAG;
