@@ -41,8 +41,10 @@ Particle.prototype.update = function() {
 };
 
 Particle.prototype.inBox = function () {
-    if (this.body.x > 150 && this.body.x < 650)
-        if (this.body.y > 150 && this.body.y < 650)
+    if (this.body.x > this.game.PAINT_BORDER &&
+        this.body.x < this.game.PLAY_WIDTH - this.game.PAINT_BORDER &&
+        this.body.y > this.game.PAINT_BORDER &&
+        this.body.y < this.game.PLAY_HEIGHT - this.game.PAINT_BORDER)
             return true;
     return false;
 }
