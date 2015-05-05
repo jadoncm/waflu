@@ -83,34 +83,35 @@ Play.prototype = {
 
     mouseHits: function() {
         var mousePos = this.game.input.mousePointer.position;
-    return this.game.physics.p2.hitTest(mousePos, this.painter.particles.children);
+        return this.game.physics.p2.hitTest(mousePos, this.painter.particles.children);
     },
 
     click: function(pointer) {
-    if (this.insideSquare) {
-        this.painter.move();
-            this.selecting = false;
-            this.painter.deselect();
-    } else if (!this.mouseHits().length) {
-            this.selecting = false;
-            this.painter.deselect();
-    } else {
-        this.selecting = true;
-    }
+        if (this.insideSquare) {
+            this.painter.move();
+                this.selecting = false;
+                this.painter.deselect();
+        } else if (!this.mouseHits().length) {
+                this.selecting = false;
+                this.painter.deselect();
+        } else {
+            this.selecting = true;
+        }
     },
 
     release: function() {
-    this.selecting = false;
+        this.selecting = false;
     },
 
     checkInsideSquare: function() {
         var mousePos = this.game.input.mousePointer.position;
-    this.insideSquare = false;
-    if (mousePos.x > this.game.PAINT_BORDER &&
-            mousePos.x < this.game.PLAY_WIDTH - this.game.PAINT_BORDER &&
-            mousePos.y > this.game.PAINT_BORDER &&
-            mousePos.y < this.game.PLAY_HEIGHT - this.game.PAINT_BORDER)
-        this.insideSquare = true;
+        this.insideSquare = false;
+        if (mousePos.x > this.game.PAINT_BORDER &&
+                mousePos.x < this.game.PLAY_WIDTH - this.game.PAINT_BORDER &&
+                mousePos.y > this.game.PAINT_BORDER &&
+                mousePos.y < this.game.PLAY_HEIGHT - this.game.PAINT_BORDER) {
+            this.insideSquare = true;
+        }
     },
 
     checkInsidePlay: function() {
