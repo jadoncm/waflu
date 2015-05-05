@@ -26,6 +26,9 @@ module.exports = function (config) {
   app.get('/console', function (req, res) {
     res.send(server.view['console']());
   });
+  app.get('/assets/star.png', function (req, res) {
+    res.sendFile(__dirname + '/star.png');
+  });
 
   http.listen(config.httpport, function () {
     console.log('http listening on:' + config.httpport);
