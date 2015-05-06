@@ -35,7 +35,7 @@ Preload.prototype = {
     },
     update: function() {
 	if(!!this.ready) {
-	    this.game.state.start('gameover');
+	    this.game.state.start('play');
 	}
     },
     onLoadComplete: function() {
