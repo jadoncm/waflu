@@ -22,6 +22,7 @@ Preload.prototype = {
 	this.load.image('fireArrow', 'assets/fire-arrow.png');
 	this.load.image('background', 'assets/background.jpg');
 	this.load.image('menu', 'assets/menu.jpg');
+	this.load.image('instructions', 'assets/instructions.png');
 	this.load.image('title', 'assets/title.png');
 	this.load.spritesheet('warrior', 'assets/warrior.png', 64, 64, 273);
 	this.load.spritesheet('play', 'assets/play.png', 300, 108);
@@ -34,7 +35,7 @@ Preload.prototype = {
     },
     update: function() {
 	if(!!this.ready) {
-	    this.game.state.start('menu');
+	    this.game.state.start('gameover');
 	}
     },
     onLoadComplete: function() {

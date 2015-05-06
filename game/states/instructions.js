@@ -7,7 +7,7 @@ Instructions.prototype = {
 
   },
   create: function() { 
-      // this.game.add.image(0, 0, 'instructions');
+      this.game.add.image(0, 0, 'instructions');
 
       this.play =
           this.game.add.button(this.game.width/2, 600, 'play',
