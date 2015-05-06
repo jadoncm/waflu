@@ -6,9 +6,10 @@ var Warrior = function(game, x, y, fluidCG, warriorCG, arrowCG, wallCG) {
 
     this.game.WARRIOR_VELOCITY = 300;
     this.game.WARRIOR_HEALTH = 10000;
+    this.game.WARRIOR_SPEED = 200;
     this.health = this.game.WARRIOR_HEALTH;
     this.curDir = "D";
-    this.lastShot = 0;
+    this.shooting = false;
     this.anchor.setTo(0.5, 0.5);
 
     this.fluidCG = fluidCG;
@@ -57,47 +58,49 @@ Warrior.prototype.loseHealth = function(amount) {
 Warrior.prototype.stop = function() {
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
-    this.animations.stop();
-    switch(this.curDir) {
-    case "L":
-        this.frame = 117;
-        break;
-    case "R":
-        this.frame = 143;
-        break;
-    case "U":
-    case "UL":
-    case "UR":
-        this.frame = 104;
-        break;
-    case "D":
-    case "DL":
-    case "DR":
-        this.frame = 130;
-        break;
+
+    if (!(this.animations.currentAnim.name.startsWith("shoot") &&
+          this.animations.currentAnim.isPlaying)) {
+        this.animations.stop();
+        switch(this.curDir) {
+        case "L":
+            this.frame = 117;
+            break;
+        case "R":
+            this.frame = 143;
+            break;
+        case "U":
+        case "UL":
+        case "UR":
+            this.frame = 104;
+            break;
+        case "D":
+        case "DL":
+        case "DR":
+            this.frame = 130;
+            break;
+        }
     }
 }
 
 Warrior.prototype.addArrow = function(){
-    if(!(this.game.time.time - this.lastShot > 300)){
-	return;
-    }
-    else{
-	this.lastShot = this.game.time.time;
-    }
+    if (this.shooting)
+        return;
 
-    // if(this.curDir == "U" || this.curDir == "UL" || this.curDir == "UR"){
-    //     this.animations.play('shootUp', 30, false);
-    // }
-    // else if(this.curDir == "L"){
-    //     this.animations.play('shootLeft', 30, false);	
-    // }
-    // else if(this.curDir == "R"){
-    //     this.animations.play('shootRight', 30, false);	
-    // }
-    // else { //shooting down or angled down
-    //     this.animations.play('shootDown', 30, false);
-    // }
+    this.shooting = true;
+    if(this.curDir == "U" || this.curDir == "UL" || this.curDir == "UR")
+        this.animations.play('shootUp', 24, false);
+    else if(this.curDir == "L")
+        this.animations.play('shootLeft', 24, false);	
+    else if(this.curDir == "R")
+        this.animations.play('shootRight', 24, false);	
+    else //shooting down or angled down
+        this.animations.play('shootDown', 24, false);
+    var timer = this.game.time.create();
+    timer.add(300, function() {
+        this.shooting = false;
+    }, this);
+    timer.start();
 
     this.fireArrows.add(new FireArrow(this.game, this.x, this.y, this.curDir, this.fluidCG, this.arrowCG, this.wallCG));
 }
@@ -135,23 +138,26 @@ Warrior.prototype.move = function(direction) {
         break;
     }
 
-    switch(direction) {
-    case "L":
-        this.animations.play("walkLeft", 24, true);
-        break;
-    case "R":
-        this.animations.play("walkRight", 24, true);
-        break;
-    case "U":
-    case "UL":
-    case "UR":
-        this.animations.play("walkUp", 24, true);
-        break;
-    case "D":
-    case "DL":
-    case "DR":
-        this.animations.play("walkDown", 24, true);
-        break;
+    if (!(this.animations.currentAnim.name.startsWith("shoot") &&
+          this.animations.currentAnim.isPlaying)) {
+        switch(direction) {
+        case "L":
+            this.animations.play("walkLeft", 24, true);
+            break;
+        case "R":
+            this.animations.play("walkRight", 24, true);
+            break;
+        case "U":
+        case "UL":
+        case "UR":
+            this.animations.play("walkUp", 24, true);
+            break;
+        case "D":
+        case "DL":
+        case "DR":
+            this.animations.play("walkDown", 24, true);
+            break;
+        }
     }
 }
 
