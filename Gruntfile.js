@@ -116,4 +116,6 @@ module.exports = function (grunt) {
         bootstrapper = grunt.template.process(bootstrapper,{data: config});
         grunt.file.write('game/main.js', bootstrapper);
     });
+
+    grunt.registerTask('deploy', ['buildcontrol']);
 };
