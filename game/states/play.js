@@ -55,9 +55,9 @@ Play.prototype = {
 
     initMouse: function() {
 	this.mouseBody = this.game.add.sprite(100, 100);
-	this.game.physics.p2.enable(this.mouseBody, false);
+	this.game.physics.p2.enable(this.mouseBody, true);
 	this.mouseBody.body.static = true;
-	this.mouseBody.body.setCircle(this.game.PARTICLE_SIZE);
+	this.mouseBody.body.setCircle(this.game.PARTICLE_SIZE * 4);
 	this.mouseBody.body.data.shapes[0].sensor = true;
 	this.game.input.addMoveCallback(function (pointer, x, y, isDown) {
 	    this.mouseBody.body.x = x;
@@ -183,7 +183,7 @@ Play.prototype = {
 	// select particles
 	if (mouseDown && this.selecting) {
 	    var bodies = this.mouseHits();
-	    if (bodies.length && !bodies[0].selected) {
+	    if (bodies.length && !bodies[0].parent.sprite.selected) {
 	        this.painter.select(bodies[0].parent.sprite);
 	    }
 	}

@@ -7,6 +7,7 @@ var FireArrow = function(game, x, y, direction, fluidCG, arrowCG) {
     this.anchor.setTo(0.5, 0.5);
 
     this.game.physics.p2.enable(this, false);
+    this.body.setCircle(this.game.PARTICLE_SIZE);
     this.body.allowRotation = false;
     this.body.setCollisionGroup(arrowCG);
     this.body.collides(fluidCG);
