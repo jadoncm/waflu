@@ -72,6 +72,26 @@ module.exports = function (grunt) {
                 src: ['game/main.js'],
                 dest: 'dist/js/game.js'
             }
+        },
+        buildcontrol: {
+            options: {
+                dir: 'dist',
+                commit: true,
+                push: true,
+                message: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%'
+            },
+            heroku: {
+                options: {
+                    remote: 'git@heroku.com:fluwa.git',
+                    branch: 'master',
+                }
+            },
+            local: {
+                options: {
+                    remote: '../',
+                    branch: 'build'
+                }
+            }
         }
     });
     
@@ -96,6 +116,4 @@ module.exports = function (grunt) {
         bootstrapper = grunt.template.process(bootstrapper,{data: config});
         grunt.file.write('game/main.js', bootstrapper);
     });
-
-    grunt.registerTask('heroku:production', 'clean less mincss uglify');
 };
