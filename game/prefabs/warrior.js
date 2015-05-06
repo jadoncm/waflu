@@ -53,6 +53,18 @@ Warrior.prototype.constructor = Warrior;
 
 Warrior.prototype.update = function() {
     this.rotation = 0;
+
+    if (this.body.x < this.game.PAINT_BORDER + 28) {
+    	this.body.x = this.game.PAINT_BORDER + 28;
+    } else if (this.body.x > this.game.PLAY_WIDTH - this.game.PAINT_BORDER - 28) {
+    	this.body.x = this.game.PLAY_WIDTH - this.game.PAINT_BORDER - 28;
+    }
+
+    if (this.body.y < this.game.PAINT_BORDER + 30) {
+    	this.body.y = this.game.PAINT_BORDER + 30;
+    } else if (this.body.y > this.game.PLAY_HEIGHT - this.game.PAINT_BORDER - 43) {
+    	this.body.y = this.game.PLAY_HEIGHT - this.game.PAINT_BORDER - 43;
+    }
 };
 
 Warrior.prototype.loseHealth = function(amount) {
