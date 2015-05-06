@@ -85,12 +85,6 @@ module.exports = function (grunt) {
                     remote: 'git@heroku.com:fluwa.git',
                     branch: 'master',
                 }
-            },
-            local: {
-                options: {
-                    remote: '../',
-                    branch: 'build'
-                }
             }
         }
     });
