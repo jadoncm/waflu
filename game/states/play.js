@@ -154,6 +154,22 @@ Play.prototype = {
 	    this.insidePlay = true;
     },
 
+    keysDown: function() {
+        var down = Array.prototype.slice.call(arguments);
+        var notDown = ['w', 'a', 's', 'd'];
+        for (var i = 0; i < down.length; i++)
+            notDown.splice(notDown.indexOf(down[i]), 1);
+        for (var i = 0; i < notDown.length; i++) {
+            if (this[notDown[i]].isDown)
+                return false;
+        }
+        for (var i = 0; i < down.length; i++) {
+            if (!this[down[i]].isDown)
+                return false;
+        }
+        return true;
+    },
+
     update: function() {
 
 	var mousePos = this.game.input.mousePointer.position;
@@ -187,41 +203,27 @@ Play.prototype = {
 	this.ui.updateInfo(this.painter.pp, this.painter.color,
                            this.warrior.health, this.warrior.score);
 
-	if (this.a.isDown){
+	if (this.keysDown('a'))
 	    this.warrior.move("L");
-	}
-	if (this.d.isDown){
+	if (this.keysDown('d'))
 	    this.warrior.move("R");
-	}
-	if (this.w.isDown){
-	    if(this.a.isDown){
-		this.warrior.move("UL");
-	    }
-	    else if(this.d.isDown){
-		this.warrior.move("UR");
-	    }
-	    else{
-		this.warrior.move("U");
-	    }
-	}
-	if (this.s.isDown){
-	    if(this.a.isDown){
-		this.warrior.move("DL");
-	    }
-	    else if(this.d.isDown){
-		this.warrior.move("DR");
-	    }
-	    else{
-		this.warrior.move("D");
-	    }
-	}
-
-	if (this.space.isDown){
-	    this.warrior.addArrow();								
-	}
-
-        if (!(this.w.isDown || this.a.isDown || this.s.isDown || this.d.isDown))
+        if (this.keysDown('w'))
+            this.warrior.move("U");
+        if (this.keysDown('s'))
+            this.warrior.move("D");
+        if (this.keysDown('w', 'a'))
+            this.warrior.move("UL");
+        if (this.keysDown('w', 'd'))
+            this.warrior.move("UR");
+        if (this.keysDown('s', 'a'))
+            this.warrior.move("DL");
+        if (this.keysDown('s', 'd'))
+            this.warrior.move("DR");
+        if (this.keysDown())
             this.warrior.stop();
+
+	if (this.space.isDown)
+	    this.warrior.addArrow();								
     }
 };
 

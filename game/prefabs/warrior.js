@@ -9,7 +9,6 @@ var Warrior = function(game, x, y, fluidCG, warriorCG, arrowCG, wallCG) {
     this.health = this.game.WARRIOR_HEALTH;
     this.curDir = "D";
     this.lastShot = 0;
-    //anchor
     this.anchor.setTo(0.5, 0.5);
 
     this.fluidCG = fluidCG;
@@ -22,21 +21,14 @@ var Warrior = function(game, x, y, fluidCG, warriorCG, arrowCG, wallCG) {
     this.body.setCollisionGroup(warriorCG);
     this.body.collides(fluidCG);
     
-    this.animations.add('stillLeft', [169, 170, 171, 172, 173, 174], 6);
-    this.animations.add('stillRight', [195, 196, 197, 198, 199, 200], 6);
-    this.animations.add('stillUp', [156, 157, 158, 159, 160, 161], 6);
-    this.animations.add('stillDown', [182, 183, 184, 185, 186, 187], 6);
-    this.animations.add('walkLeft', [117, 118, 119, 120, 121, 122, 123, 124, 125], 9);
-    this.animations.add('walkRight', [143, 144, 145, 146, 147, 148, 149, 150, 151], 9);
-    this.animations.add('walkUp', [104, 105, 106, 107, 108, 109, 110, 111, 112], 9);
-    this.animations.add('walkDown', [130, 131, 132, 133, 134, 135, 136, 137, 138], 9);
-    this.animations.add('shootLeft', [221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233], 13);
-    this.animations.add('shootRight', [247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259], 13);
-    this.animations.add('shootUp', [208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220], 13);
-    this.animations.add('shootDown', [234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246], 13);
-    this.animations.add('faint', [260, 261, 262, 163, 164, 165], 6);
-    this.animations.add('nova', [39, 40, 41, 42, 43, 44, 45], 7);
-    this.animations.play('stillDown', 4, true);
+    this.animations.add('walkLeft', [117, 118, 119, 120, 121, 122, 123, 124, 125]);
+    this.animations.add('walkRight', [143, 144, 145, 146, 147, 148, 149, 150, 151]);
+    this.animations.add('walkUp', [104, 105, 106, 107, 108, 109, 110, 111, 112]);
+    this.animations.add('walkDown', [130, 131, 132, 133, 134, 135, 136, 137, 138]);
+    this.animations.add('shootLeft', [221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232]);
+    this.animations.add('shootRight', [247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258]);
+    this.animations.add('shootUp', [208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219]);
+    this.animations.add('shootDown', [234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245]);
 
     this.fireArrows = this.game.add.group();
     
@@ -52,7 +44,7 @@ Warrior.prototype = Object.create(Phaser.Sprite.prototype);
 Warrior.prototype.constructor = Warrior;
 
 Warrior.prototype.update = function() {
-    this.rotation = 0;
+
 };
 
 Warrior.prototype.loseHealth = function(amount) {
@@ -66,6 +58,24 @@ Warrior.prototype.stop = function() {
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.animations.stop();
+    switch(this.curDir) {
+    case "L":
+        this.frame = 117;
+        break;
+    case "R":
+        this.frame = 143;
+        break;
+    case "U":
+    case "UL":
+    case "UR":
+        this.frame = 104;
+        break;
+    case "D":
+    case "DL":
+    case "DR":
+        this.frame = 130;
+        break;
+    }
 }
 
 Warrior.prototype.addArrow = function(){
