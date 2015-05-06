@@ -10,10 +10,10 @@ Instructions.prototype = {
       this.game.add.image(0, 0, 'instructions');
 
       this.play =
-          this.game.add.button(this.game.width/2, 600, 'play',
+          this.game.add.button(this.game.width/2, 770, 'play',
                                function() { this.game.state.start('play'); }, this,
                                1, 0, 2, 1);
-      this.play.anchor.set(0.5, 0.5);
+      this.play.anchor.set(0.5, 1);
   },
   update: function() {
   }
