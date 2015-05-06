@@ -127,7 +127,7 @@ UIGroup.prototype.updateInfo = function(pp, color, hp, score) {
         color.b
     ));
     this.infoGraphics.lineStyle(2, 0x000000);
-    this.infoGraphics.drawRoundedRect(0, 0, 64, 64, 8);
+    this.infoGraphics.drawRect(0, 0, 64, 64, 8);
 
     this.info.warrior.hp.text = hp + "/" + this.game.WARRIOR_HEALTH;
 
